@@ -1,11 +1,11 @@
 {
-    "best_f1_macro": 0.7241658993350413,
+    "best_f1_macro": 0.7345801265029103,
     "hyperparams": {
-        "learning_rate": 0.0022049711198633957,
+        "learning_rate": 0.00042747357085580674,
         "batch_size": 16,
-        "lstm_hidden_size": 256,
-        "num_lstm_layers": 2,
-        "dropout_rate": 0.3139466193035466,
+        "lstm_hidden_size": 128,
+        "num_lstm_layers": 1,
+        "dropout_rate": 0.20789428933452295,
         "cnn_filters": 64
     }
 }
