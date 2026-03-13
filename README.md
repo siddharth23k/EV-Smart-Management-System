@@ -13,11 +13,9 @@ The model predicts:
 - Brake intensity — a continuous value representing braking aggressiveness
 
 Why this matters?
-Early braking prediction can improve vehicle safety systems and driver assistance technologies.
-
-If a car detects emergency braking earlier, safety systems can react faster.
-
-For electric vehicles, braking intensity prediction can also help optimize regenerative braking, improving energy recovery and efficiency.
+- Early braking prediction can improve vehicle safety systems and driver assistance technologies.
+- If a car detects emergency braking earlier, safety systems can react faster.
+- For electric vehicles, braking intensity prediction can also help optimize regenerative braking, improving energy recovery and efficiency.
 
 ---
 
@@ -29,7 +27,7 @@ For electric vehicles, braking intensity prediction can also help optimize regen
 
 ## Model Architecture
 
-![Braking Intention Example](assets/img/1.jpg)
+![Braking Intention Example](assets/img/3.png)
 
 ---
 
@@ -44,6 +42,8 @@ For electric vehicles, braking intensity prediction can also help optimize regen
 
 Key result:
 Multitask learning improved overall performance and achieved 82% F1-score for Emergency Braking, the most safety-critical class.
+
+---
 
 ## Installation & Setup
 
@@ -64,7 +64,7 @@ python -m ipykernel install --user --name braking-intent
 
 ## How to Run
 
-### 1. Generate Dataset
+1. Generate Dataset
 ```bash
 python data/generate_dataset.py
 python data/generate_hard_dataset.py
@@ -110,14 +110,6 @@ streamlit run app.py
 - Reaction latency, road conditions, and driver intent beyond braking are not modeled.
 
 ---
- 
-## Conclusion
-
-For ambiguous, future-dependent braking intention prediction, **multitask learning outperforms both single-task learning and autoencoder-based approaches**.  
-
-Auxiliary regression of braking intensity provides meaningful, task-aligned supervision that improves generalization **without increasing model complexity**.
-
----
 
 ## References
 
@@ -125,11 +117,12 @@ This project reproduces and extends ideas from the following research work:
 
 Wei Yang, Yu Huang, Kongming Jiang, Zhen Zhang, Ketong Zong, Qin Ruan,  
 **“Method of Predicting Braking Intention Using LSTM-CNN-Attention With Hyperparameters Optimized by Genetic Algorithm”**,  
-*International Journal of Control, Automation and Systems*, Springer, 2024. :contentReference[oaicite:0]{index=0}
+*International Journal of Control, Automation and Systems*, Springer, 2024. 
+(https://link.springer.com/article/10.1007/s12555-021-1113-x)
 
 The original paper proposes an LSTM–CNN–Attention architecture for braking intention prediction using simulator-based driving data.  
+
 This project reimplements the core architecture and introduces:
 - harder ambiguous synthetic datasets
 - systematic ablation studies
 - multitask learning with braking intensity regression
-
