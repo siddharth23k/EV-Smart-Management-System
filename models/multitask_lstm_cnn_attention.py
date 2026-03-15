@@ -10,8 +10,8 @@ class Attention(nn.Module):
 
     def forward(self, x):
         # x: (batch, seq_len, hidden_dim)
-        weights = torch.softmax(self.attn(x), dim = 1)
-        context = torch.sum(weights * x, dim = 1)
+        weights = torch.softmax(self.attn(x), dim=1)
+        context = torch.sum(weights * x, dim=1)
         return context
 
 
@@ -44,7 +44,6 @@ class MultitaskLSTMCNNAttention(nn.Module):
             batch_first=True,
         )
 
-        # Attention
         self.attention = Attention(lstm_hidden)
 
         # Classification head
@@ -61,24 +60,17 @@ class MultitaskLSTMCNNAttention(nn.Module):
             nn.Linear(64, 1),
         )
 
-
     # x: (batch, seq_len, features)
-    def forward(self, x):    
+    def forward(self, x):
 
         # CNN expects (batch, channels, seq_len)
         x = x.transpose(1, 2)
         x = self.cnn(x)
-
-        # Back to (batch, seq_len, features)
         x = x.transpose(1, 2)
 
-        # LSTM
         x, _ = self.lstm(x)
-
-        # Attention
         shared = self.attention(x)
 
-        # Heads
         class_logits = self.classifier(shared)
         intensity = self.regressor(shared).squeeze(-1)
 

@@ -16,12 +16,6 @@ from models.multitask_lstm_cnn_attention import MultitaskLSTMCNNAttention
 
 
 class MultitaskHardDataset(Dataset):
-    """
-    Simple PyTorch dataset that wraps the multitask HARD .npy files:
-        - X_*_hard_mtl.npy          : (N, 75, 3)
-        - y_class_*_hard_mtl.npy    : (N,)
-        - y_int_*_hard_mtl.npy      : (N,)
-    """
 
     def __init__(self, X: np.ndarray, y_class: np.ndarray, y_intensity: np.ndarray):
         assert len(X) == len(y_class) == len(
@@ -62,13 +56,6 @@ class HyperParams:
 
 
 class GeneticAlgorithmOptimizer:
-    """
-    Simple Genetic Algorithm (GA) for hyperparameter optimization of the
-    multitask LSTM+CNN+Attention model.
-
-    - Chromosome: HyperParams
-    - Fitness: validation macro F1 score (classification head)
-    """
 
     def __init__(
         self,
@@ -103,9 +90,9 @@ class GeneticAlgorithmOptimizer:
         # Cache to avoid retraining identical configurations
         self._fitness_cache: Dict[Tuple, float] = {}
 
-    # ----------------- GA Core -----------------
+    # GA Core 
     def _random_hparams(self) -> HyperParams:
-        # Sample learning rate log-uniformly between 1e-4 and 1e-2
+        # Sample learning rate log-uniformly
         log_lr = random.uniform(math.log10(self.lr_min), math.log10(self.lr_max))
         lr = 10 ** log_lr
         return HyperParams(
@@ -149,7 +136,7 @@ class GeneticAlgorithmOptimizer:
     def _mutate(self, hp: HyperParams) -> HyperParams:
         d = hp.as_dict()
 
-        # Mutate each gene with probability = mutation_rate
+        # Each gene mutates independently
         if random.random() < self.mutation_rate:
             log_lr = random.uniform(math.log10(self.lr_min), math.log10(self.lr_max))
             d["learning_rate"] = 10 ** log_lr
@@ -171,7 +158,7 @@ class GeneticAlgorithmOptimizer:
 
         return HyperParams(**d)
 
-    # ----------------- Model Training / Evaluation -----------------
+    # Model Training / Evaluation
     def _build_model(self, hp: HyperParams) -> nn.Module:
         model = MultitaskLSTMCNNAttention(
             input_dim=3,
@@ -187,7 +174,6 @@ class GeneticAlgorithmOptimizer:
         if key in self._fitness_cache:
             return self._fitness_cache[key]
 
-        # Data loaders for this configuration
         train_loader = DataLoader(
             self.train_dataset,
             batch_size=hp.batch_size,
@@ -205,7 +191,7 @@ class GeneticAlgorithmOptimizer:
         ce_loss = nn.CrossEntropyLoss()
         mse_loss = nn.MSELoss()
 
-        # Multitask loss weight as in the paper / README (classification-focused)
+        # Classification-focused loss weighting
         lambda_cls = 0.8
         lambda_reg = 1.0 - lambda_cls
 
@@ -228,7 +214,7 @@ class GeneticAlgorithmOptimizer:
                 loss.backward()
                 optimizer.step()
 
-        # Validation F1 score (macro)
+        # Fitness = validation macro F1
         model.eval()
         all_preds: List[int] = []
         all_targets: List[int] = []
@@ -247,17 +233,9 @@ class GeneticAlgorithmOptimizer:
         self._fitness_cache[key] = f1
         return f1
 
-    # ----------------- Public API -----------------
+    # Public API 
     def run(self) -> Tuple[HyperParams, float, List[float]]:
-        """
-        Executes the GA loop.
 
-        Returns:
-            best_hparams   : best hyperparameter configuration found
-            best_fitness   : corresponding fitness (macro F1)
-            fitness_curve  : list of best fitness values per generation
-        """
-        # Initialize population
         population: List[HyperParams] = [self._random_hparams() for _ in range(self.population_size)]
         fitnesses: List[float] = [self._fitness(ind) for ind in population]
 
@@ -269,7 +247,7 @@ class GeneticAlgorithmOptimizer:
         for gen in range(1, self.generations + 1):
             new_population: List[HyperParams] = []
 
-            # Elitism: always keep current best
+            # Elitism: always carry the best individual forward
             new_population.append(best_individual)
 
             while len(new_population) < self.population_size:
@@ -307,10 +285,6 @@ class GeneticAlgorithmOptimizer:
 def load_multitask_hard_datasets(
     data_dir: str = "data",
 ) -> Tuple[Dataset, Dataset]:
-    """
-    Loads the multitask HARD dataset from .npy files and returns
-    PyTorch train/val datasets.
-    """
     X_train = np.load(os.path.join(data_dir, "X_train_hard_mtl.npy"))
     X_val = np.load(os.path.join(data_dir, "X_val_hard_mtl.npy"))
 
@@ -378,4 +352,3 @@ def run_ga_optimization():
 
 if __name__ == "__main__":
     run_ga_optimization()
-

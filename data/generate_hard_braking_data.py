@@ -1,55 +1,16 @@
-'''
-    The old data generator created clean, deterministic labels. So even with noise, labels were still trivially separable.
-
-    Redesigning the data so that:
-    - Classes overlap
-    - Labels depend on future braking behavior
-    - One window can contain mixed braking patterns
-    - Model must actually understand temporal evolution
-
-'''
-
-
-'''
-Conceptual changes
-
-1. Labels depend on FUTURE behavior
-
-Instead of: “What is happening now?”
-We ask: “What will the driver do shortly after this window?”
-
-2. Overlapping feature ranges
-
-Example:
-- Light & Normal braking share pedal ranges
-- Emergency braking may start softly, then spike
-
-3. Mixed patterns inside one window
-
-A single window may contain:
-- cruising → braking
-- light → emergency escalation
-'''
-
 import numpy as np
 
-"""
-    Generates one ambiguous braking sequence.
-    Returns:
-        X: (seq_len, 3)
-        y: class label (0,1,2)
-"""
 
-def generate_hard_sample(seq_len = 75):
+def generate_hard_sample(seq_len=75):
 
-    # Random initial conditions
+    # Initial conditions
     speed = np.random.uniform(30, 90)
     accel = 0.0
     brake = 0.0
 
     X = []
 
-    # Decide braking intention based on FUTURE behavior
+    # Label is based on where braking is heading, not what's happening now
     future_intensity = np.random.rand()
 
     if future_intensity < 0.35:
@@ -62,20 +23,17 @@ def generate_hard_sample(seq_len = 75):
         label = 2  # Emergency
         target_brake = np.random.uniform(0.5, 1.0)
 
-    # Generate time-series
     for t in range(seq_len):
-        # Brake ramps gradually (not instantly!)
+        # Gradually ramp brake toward target
         brake += (target_brake - brake) * np.random.uniform(0.02, 0.08)
 
-        # Add inconsistency & noise
+        # Driver inconsistency & sensor noise
         brake += np.random.normal(0, 0.05)
         brake = np.clip(brake, 0, 1)
 
-        # Acceleration responds imperfectly
         accel = -brake * np.random.uniform(1.5, 3.5)
         accel += np.random.normal(0, 0.2)
 
-        # Speed update
         speed += accel * 0.1
         speed = max(speed, 0)
 
@@ -84,7 +42,7 @@ def generate_hard_sample(seq_len = 75):
     return np.array(X), label
 
 
-def generate_dataset(n_samples = 15000):
+def generate_dataset(n_samples=15000):
 
     X, y = [], []
 
@@ -105,7 +63,7 @@ if __name__ == "__main__":
     idx = np.random.permutation(len(X))
     X, y = X[idx], y[idx]
 
-    # Split
+    # Split 70/15/15
     n = len(X)
     X_train, y_train = X[:int(0.7 * n)], y[:int(0.7 * n)]
     X_val, y_val = X[int(0.7 * n):int(0.85 * n)], y[int(0.7 * n):int(0.85 * n)]
@@ -120,24 +78,3 @@ if __name__ == "__main__":
     np.save("data/y_test_hard.npy", y_test)
 
     print("Hard ambiguous dataset generated.")
-
-
-'''
-    Why this generator is MUCH harder compared to old generator:
-    
-    Aspect	                Old	            New
-    Label logic	            Instant	        Future-based
-    Feature overlap	        Low	            High
-    Temporal ambiguity	    None	        Strong
-    Mixed behavior	        No	            Yes
-    Realism	                Low	            Medium–High
-
-    Now:
-        - Noise alone is NOT enough to classify
-        - The model must track temporal trends
-        - LSTM + Attention finally matters
-'''
-
-
-
-
