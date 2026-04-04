@@ -49,3 +49,11 @@ models/*.pt
 !models/final_multitask_model.pth
 
 interview-questions.txt
+
+# SOC raw data
+modules/soc/data/*.csv
+modules/soc/data/*.npy
+modules/soc/data/*.npy.gz
+
+# Braking data 
+modules/braking/data/*.npy
