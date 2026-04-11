@@ -8,6 +8,7 @@ env/
 __pycache__/
 *.py[cod]
 *.pyo
+.pytest_cache/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
@@ -57,3 +58,6 @@ modules/soc/data/*.npy.gz
 
 # Braking data 
 modules/braking/data/*.npy
+
+*.egg-info/
+htmlcov/
