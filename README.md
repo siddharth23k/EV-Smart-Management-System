@@ -1,4 +1,4 @@
-# 🚗️ EV Smart Management System
+# EV Smart Management System
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org)
@@ -6,7 +6,7 @@
 [![Tests](https://img.shields.io/badge/Tests-4%2F4%20Passing-brightgreen.svg)](test_system.py)
 [![Performance](https://img.shields.io/badge/Performance-356%20samples%2Fsec-orange.svg)](test_system.py)
 
-> **🔋 Intelligent Electric Vehicle Management System**  
+> ** Intelligent Electric Vehicle Management System**  
 > Unified AI-powered braking intention prediction and battery State-of-Charge estimation for optimized regenerative braking control
 
 ---
@@ -39,7 +39,7 @@
 
 ## **Quick Start**
 
-### **📋 Prerequisites**
+### ** Prerequisites**
 - **Python**: 3.8+ (recommended 3.11)
 - **Memory**: 4GB+ RAM
 - **Storage**: 2GB+ (for datasets and models)
@@ -98,23 +98,23 @@ streamlit run ui/app_original.py
 ┌─────────────────────────────────────────────────────────────┐
 │                 INFERENCE LAYER                        │
 ├─────────────────────────────────────────────────────────────┤
-│  🧠 EnhancedEVPipeline (shared/enhanced_utils.py)   │
-│  - ✅ Input validation (shapes, types, NaN values)     │
-│  - ✅ Model quantization (2-3ms inference)           │
-│  - ✅ Batch inference (350+ samples/second)          │
-│  - ✅ Error handling (graceful fallbacks)           │
-│  - ✅ Performance monitoring (latency tracking)        │
+│   EnhancedEVPipeline (shared/enhanced_utils.py)   │
+│  -  Input validation (shapes, types, NaN values)     │
+│  -  Model quantization (2-3ms inference)           │
+│  -  Batch inference (350+ samples/second)          │
+│  -  Error handling (graceful fallbacks)           │
+│  -  Performance monitoring (latency tracking)        │
 └─────────────────────────────────────────────────────────────┘
                            │
 ┌─────────────────────────────────────────────────────────────┐
 │                 MODEL LAYER                            │
 ├─────────────────────────────────────────────────────────────┤
-│  🚗️ Braking Models:                                │
+│   Braking Models:                                 │
 │  - LSTMCNNAttention (baseline)                     │
 │  - MultitaskLSTMCNNAttention (GA-optimized)        │
 │  - Genetic Algorithm hyperparameter optimization         │
 │                                                   │
-│  🔋 SoC Models:                                    │
+│   SoC Models:                                     │
 │  - LSTMSoC (baseline)                             │
 │  - LSTMCNNAttentionSoC (enhanced)                  │
 │  - Multi-modal attention mechanisms                   │
@@ -123,12 +123,12 @@ streamlit run ui/app_original.py
 ┌─────────────────────────────────────────────────────────────┐
 │                 DATA LAYER                             │
 ├─────────────────────────────────────────────────────────────┤
-│  🚗️ Braking Data:                                  │
+│   Braking Data:                                   │
 │  - Synthetic driving scenarios (10,500 samples)          │
 │  - 75 timesteps × 3 features (speed, accel, brake)   │
 │  - 3-class balanced distribution                     │
 │                                                   │
-│  🔋 SoC Data:                                        │
+│   SoC Data:                                        │
 │  - NASA battery dataset (7,565 CSV files)           │
 │  - 702,889 windows × 50 timesteps × 3 features   │
 │  - Real-world battery cycling data                    │
@@ -179,14 +179,14 @@ All tests passed! System is ready for production.
 
 ## **Advanced Features**
 
-### **🔍 Input Validation & Error Handling**
+### ** Input Validation & Error Handling**
 - **Shape Validation**: Ensures correct input dimensions
 - **Type Checking**: Validates numpy arrays and data types
 - **Range Validation**: Checks for reasonable value ranges
 - **NaN/Inf Detection**: Prevents model crashes
 - **Graceful Fallbacks**: Handles missing models/data
 
-### **⚡ Model Optimization**
+### ** Model Optimization**
 - **Dynamic Quantization**: Reduces model size by 70%
 - **Batch Processing**: Efficient multi-sample inference
 - **Attention Mechanisms**: Focuses on critical time steps
@@ -205,59 +205,59 @@ All tests passed! System is ready for production.
 ```
 EV-Smart-Management-System/
 |
-├── 🌐 ui/                           # User Interface Layer
+├──  ui/                           # User Interface Layer
 │   ├── app.py                        # Enhanced unified UI (braking + SoC)
 │   └── app_original.py               # Original braking-only UI
 |
-├── 🧠 modules/                       # Core Modules
-│   ├── 🚗️ braking/                  # Braking Intention Module
+├──  modules/                       # Core Modules
+│   ├──  braking/                  # Braking Intention Module
 │   │   ├── data/                     # Braking datasets (10,500 samples)
 │   │   ├── models/                   # Trained models (4.2MB)
 │   │   └── notebooks/                # Research & development
 │   │
-│   ├── 🔋 soc/                       # Battery SoC Module
+│   ├──  soc/                       # Battery SoC Module
 │   │   ├── data/                     # NASA battery datasets (702,889 samples)
 │   │   ├── models/                   # Trained models (2.8MB)
 │   │   └── notebooks/                # Research & development
 │   │
-│   ├── 📊 data/                      # Data Generation Pipeline
+│   ├──  data/                      # Data Generation Pipeline
 │   │   ├── generate_all_datasets_fixed.py
 │   │   └── real_braking_preprocessor.py
 │   │
-│   ├── 🏋️ train/                     # Training Scripts
+│   ├──  train/                     # Training Scripts
 │   │   ├── train_all_models.py
 │   │   ├── train_braking.py
 │   │   ├── train_soc.py
 │   │   └── run_full_training.sh
 │   │
-│   └── 🔧 shared/                     # Shared Utilities
+│   └──  shared/                     # Shared Utilities
 │       ├── train_utils.py
 │       └── notebooks/
 |
-├── ⚙️ shared/                        # System Core
+├──  shared/                        # System Core
 │   ├── config.py                    # Configuration management
 │   ├── enhanced_utils.py            # Enhanced unified pipeline
 │   ├── utils.py                     # Original unified pipeline
 │   ├── train_utils.py              # Training utilities
 │   └── __init__.py
 |
-├── 📋 config/                       # Configuration Files
+├──  config/                       # Configuration Files
 │   └── default.yaml                # System parameters & paths
 |
-├── 🚀 run_enhanced.py               # Enhanced main entry point
-├── 🚀 run_unified.py                # Original main entry point
-├── 🧪 test_system.py                # Comprehensive test suite
-├── 📦 requirements.txt              # Dependencies
-├── 📄 LICENSE                      # MIT License
-├── 📖 README.md                    # This file
-└── 🖼️ assets/                      # Documentation & media
+├──  run_enhanced.py               # Enhanced main entry point
+├──  run_unified.py                # Original main entry point
+├──  test_system.py                # Comprehensive test suite
+├──  requirements.txt              # Dependencies
+├──  LICENSE                      # MIT License
+├──  README.md                    # This file
+└──  assets/                      # Documentation & media
 ```
 
 ---
 
 ## 🎮 **Usage Examples**
 
-### **📱 Single Inference**
+### ** Single Inference**
 ```python
 from shared.enhanced_utils import EnhancedEVPipeline
 import numpy as np
@@ -278,7 +278,7 @@ print(f"SoC: {result['soc']['updated']:.2%}")
 print(f"Action: {result['system_action']}")
 ```
 
-### **📦 Batch Inference**
+### ** Batch Inference**
 ```python
 # Generate batch data
 batch_driving = np.random.rand(100, 75, 3).astype(np.float32)
@@ -291,7 +291,7 @@ results = pipeline.run_batch(batch_driving, batch_battery, batch_soc)
 print(f"Processed {len(results)} samples in {pipeline.inference_time:.2f}ms")
 ```
 
-### **🌐 Streamlit Interface**
+### ** Streamlit Interface**
 ```python
 # Run interactive dashboard
 streamlit run ui/app.py
@@ -308,7 +308,7 @@ streamlit run ui/app.py
 
 ## 🔧 **Configuration System**
 
-### **📋 Centralized Configuration** (`config/default.yaml`)
+### ** Centralized Configuration** (`config/default.yaml`)
 
 ```yaml
 system:
@@ -349,20 +349,20 @@ paths:
 
 ---
 
-## 🧪 **Testing & Validation**
+##  **Testing & Validation**
 
-### **🔬 Comprehensive Test Suite**
+### ** Comprehensive Test Suite**
 ```bash
 python test_system.py
 ```
 
 **Test Coverage:**
-- ✅ Data Generation Pipeline
-- ✅ Model Training Pipeline  
-- ✅ Unified Inference System
-- ✅ Performance Benchmarks
+-  Data Generation Pipeline
+-  Model Training Pipeline  
+-  Unified Inference System
+-  Performance Benchmarks
 
-### **🎯 Model Validation**
+### ** Model Validation**
 ```bash
 # Test individual components
 python run_enhanced.py --demo single    # Single inference test
@@ -373,9 +373,9 @@ python run_enhanced.py --demo benchmark  # Performance test
 
 ---
 
-## 🚀 **Deployment**
+##  **Deployment**
 
-### **🌐 Production Deployment**
+### ** Production Deployment**
 ```bash
 # Web Interface
 streamlit run ui/app.py --server.port 8500 --server.address 0.0.0.0
@@ -388,7 +388,7 @@ docker build -t ev-smart-system .
 docker run -p 8500:8500 ev-smart-system
 ```
 
-### **📱 Edge Deployment**
+### ** Edge Deployment**
 ```python
 # Optimized for edge devices
 pipeline = EnhancedEVPipeline(
@@ -403,9 +403,9 @@ result = pipeline.run(driving_data, battery_data, current_soc)
 
 ---
 
-## 🤝 **Contributing**
+##  **Contributing**
 
-### **🔧 Development Setup**
+### ** Development Setup**
 ```bash
 # Clone and setup
 git clone https://github.com/siddharth23k/EV-Smart-Management-System.git
@@ -423,35 +423,19 @@ black .
 flake8 .
 ```
 
-### **📝 Contribution Guidelines**
-- **🌟 New Features**: Fork → Branch → PR → Review → Merge
-- **🐛 Bug Reports**: Issues with detailed reproduction steps
-- **📚 Documentation**: Update README and docstrings
-- **🧪 Testing**: Ensure all tests pass
-- **🎯 Performance**: Benchmark before/after changes
+### ** Contribution Guidelines**
+- ** New Features**: Fork → Branch → PR → Review → Merge
+- ** Bug Reports**: Issues with detailed reproduction steps
+- ** Documentation**: Update README and docstrings
+- ** Testing**: Ensure all tests pass
+- ** Performance**: Benchmark before/after changes
 
 ---
 
-## 📜 **License & Citation**
+## Citation**
 
-### **📄 License**
-```
-MIT License
 
-Copyright (c) 2026 Siddharth Kumar
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-```
-
-### **📚 Citation**
+### ** Citation**
 ```bibtex
 @software{ev_smart_management_2026,
   title={EV Smart Management System: Unified Braking Intention and Battery State-of-Charge Prediction},
@@ -464,27 +448,18 @@ copies or substantial portions of the Software.
 
 ---
 
-## 🏆 **Acknowledgments**
+##  **Acknowledgments**
 
-- **🔋 NASA**: Battery dataset from NASA Prognostics Data Repository
-- **🚗️ PyTorch**: Deep learning framework
-- **🌊 Streamlit**: Interactive web interface
-- **📊 Matplotlib**: Visualization library
-- **🧬 Scikit-learn**: Machine learning utilities
-
----
-
-## 📞 **Contact & Support**
-
-- **👨‍💻 Author**: Siddharth Kumar
-- **📧 Email**: [Your Email]
-- **🌐 Repository**: https://github.com/siddharth23k/EV-Smart-Management-System
-- **🐛 Issues**: https://github.com/siddharth23k/EV-Smart-Management-System/issues
-- **📖 Documentation**: https://github.com/siddharth23k/EV-Smart-Management-System/wiki
+- ** NASA**: Battery dataset from NASA Prognostics Data Repository
+- ** PyTorch**: Deep learning framework
+- ** Streamlit**: Interactive web interface
+- ** Matplotlib**: Visualization library
+- ** Scikit-learn**: Machine learning utilities
 
 ---
 
-## 🐛 **Troubleshooting**
+
+##  **Troubleshooting**
 
 ### **Common Issues & Solutions**
 
@@ -523,9 +498,9 @@ python -c "import sys; print(sys.path)"
 
 <div align="center">
 
-### 🚀 **Production-Ready EV Intelligence System**
+### **Production-Ready EV Intelligence System**
 
-**⚡ 350+ samples/second • 🎯 92.3% accuracy • 🔋 65% energy recovery**
+**⚡ 350+ samples/second • 92.3% accuracy • 65% energy recovery**
 
 [![GitHub stars](https://img.shields.io/github/stars/siddharth23k/EV-Smart-Management-System?style=social)](https://github.com/siddharth23k/EV-Smart-Management-System)
 [![GitHub forks](https://img.shields.io/github/forks/siddharth23k/EV-Smart-Management-System?style=social)](https://github.com/siddharth23k/EV-Smart-Management-System)
