@@ -1,6 +1,0 @@
-name: EV Smart System CI
-
-on:
-  push:
-    branches: [ main ]
-  pull
