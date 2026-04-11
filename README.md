@@ -86,52 +86,52 @@ streamlit run ui/app_original.py
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    USER INTERFACE LAYER                  │
+│                    USER INTERFACE LAYER                     │
 ├─────────────────────────────────────────────────────────────┤
-│  🌐 Streamlit Dashboard (ui/app.py)                   │
-│  - Real-time driving/battery scenario controls           │
-│  - Interactive time-series visualization                 │
-│  - Live prediction results with metrics                │
-│  - Downloadable prediction reports                   │
+│    Streamlit Dashboard (ui/app.py)                          │
+│  - Real-time driving/battery scenario controls              │
+│  - Interactive time-series visualization                    │
+│  - Live prediction results with metrics                     │
+│  - Downloadable prediction reports                          │
 └─────────────────────────────────────────────────────────────┘
                            │
 ┌─────────────────────────────────────────────────────────────┐
-│                 INFERENCE LAYER                        │
+│                 INFERENCE LAYER                             │
 ├─────────────────────────────────────────────────────────────┤
-│   EnhancedEVPipeline (shared/enhanced_utils.py)   │
-│  -  Input validation (shapes, types, NaN values)     │
-│  -  Model quantization (2-3ms inference)           │
-│  -  Batch inference (350+ samples/second)          │
-│  -  Error handling (graceful fallbacks)           │
-│  -  Performance monitoring (latency tracking)        │
+│   EnhancedEVPipeline (shared/enhanced_utils.py)             │
+│  -  Input validation (shapes, types, NaN values)            │
+│  -  Model quantization (2-3ms inference)                    │
+│  -  Batch inference (350+ samples/second)                   │
+│  -  Error handling (graceful fallbacks)                     │
+│  -  Performance monitoring (latency tracking)               │
 └─────────────────────────────────────────────────────────────┘
                            │
 ┌─────────────────────────────────────────────────────────────┐
-│                 MODEL LAYER                            │
+│                 MODEL LAYER                                 │
 ├─────────────────────────────────────────────────────────────┤
-│   Braking Models:                                 │
-│  - LSTMCNNAttention (baseline)                     │
-│  - MultitaskLSTMCNNAttention (GA-optimized)        │
-│  - Genetic Algorithm hyperparameter optimization         │
-│                                                   │
-│   SoC Models:                                     │
-│  - LSTMSoC (baseline)                             │
-│  - LSTMCNNAttentionSoC (enhanced)                  │
-│  - Multi-modal attention mechanisms                   │
+│   Braking Models:                                           │
+│  - LSTMCNNAttention (baseline)                              │
+│  - MultitaskLSTMCNNAttention (GA-optimized)                 │
+│  - Genetic Algorithm hyperparameter optimization            │
+│                                                             │
+│   SoC Models:                                               │
+│  - LSTMSoC (baseline)                                       │
+│  - LSTMCNNAttentionSoC (enhanced)                           │
+│  - Multi-modal attention mechanisms                         │
 └─────────────────────────────────────────────────────────────┘
                            │
 ┌─────────────────────────────────────────────────────────────┐
-│                 DATA LAYER                             │
+│                 DATA LAYER                                  │
 ├─────────────────────────────────────────────────────────────┤
-│   Braking Data:                                   │
-│  - Synthetic driving scenarios (10,500 samples)          │
-│  - 75 timesteps × 3 features (speed, accel, brake)   │
-│  - 3-class balanced distribution                     │
-│                                                   │
-│   SoC Data:                                        │
-│  - NASA battery dataset (7,565 CSV files)           │
-│  - 702,889 windows × 50 timesteps × 3 features   │
-│  - Real-world battery cycling data                    │
+│   Braking Data:                                             │
+│  - Synthetic driving scenarios (10,500 samples)             │
+│  - 75 timesteps × 3 features (speed, accel, brake)          │
+│  - 3-class balanced distribution                            │
+│                                                             │
+│   SoC Data:                                                 │
+│  - NASA battery dataset (7,565 CSV files)                   │
+│  - 702,889 windows × 50 timesteps × 3 features              │
+│  - Real-world battery cycling data                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
