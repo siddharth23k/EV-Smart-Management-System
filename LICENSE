@@ -19,3 +19,14 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+EV Smart Management System
+Unified Braking Intention + Battery SoC Prediction for Electric Vehicles
+
+Features:
+- LSTM+CNN+Attention models for braking intention classification
+- Battery State-of-Charge estimation with regenerative braking integration
+- Input validation, error handling, batch inference, and quantization
+- Production-ready deployment capabilities

@@ -7,6 +7,17 @@ Runs both modules together and shows integrated output.
 import numpy as np
 from shared.utils import UnifiedEVPipeline
 
+# Check if models exist, use dummy if not
+import os
+if not all(os.path.exists(p) for p in [
+    "modules/braking/models/final_multitask_model.pth",
+    "modules/soc/models/lstm_cnn_attention_soc.pth",
+    "modules/braking/models/best_ga_hyperparams.json"
+]):
+    print("⚠️  Missing model weights. Using dummy predictions.")
+    print("   Run: python modules/train/train_all_models.py")
+
+
 
 def generate_sample_inputs():
     """Generate synthetic sample inputs for demo when real data isn't loaded."""

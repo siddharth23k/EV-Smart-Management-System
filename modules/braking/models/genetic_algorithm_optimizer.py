@@ -12,7 +12,7 @@ import torch.nn as nn
 from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader, Dataset
 
-from models.multitask_lstm_cnn_attention import MultitaskLSTMCNNAttention
+from .multitask_lstm_cnn_attention import MultitaskLSTMCNNAttention
 
 
 class MultitaskHardDataset(Dataset):

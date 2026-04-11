@@ -50,15 +50,22 @@ class UnifiedEVPipeline:
             if os.path.exists(hp_path):
                 with open(hp_path) as f:
                     hp = json.load(f)["hyperparams"]
+                # Use parameters that match the saved model architecture
                 self.braking_model = MultitaskLSTMCNNAttention(
                     input_dim=3,
-                    cnn_channels=hp.get("cnn_filters", 64),
-                    lstm_hidden=hp.get("lstm_hidden_size", 128),
-                    num_lstm_layers=hp.get("num_lstm_layers", 2),
-                    dropout_rate=hp.get("dropout_rate", 0.2),
+                    cnn_channels=32,  # Match saved model
+                    lstm_hidden=hp.get("lstm_hidden_size", 64),
+                    num_lstm_layers=1,  # Match saved model
+                    dropout_rate=0.0,  # Match saved model
                 )
             else:
-                self.braking_model = MultitaskLSTMCNNAttention(input_dim=3)
+                self.braking_model = MultitaskLSTMCNNAttention(
+                    input_dim=3,
+                    cnn_channels=32,
+                    lstm_hidden=64,
+                    num_lstm_layers=1,
+                    dropout_rate=0.0,
+                )
 
             if os.path.exists(braking_path):
                 self.braking_model.load_state_dict(

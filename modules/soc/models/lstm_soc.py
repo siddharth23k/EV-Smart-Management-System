@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader, TensorDataset
 
 
 class LSTMSoC(nn.Module):
-    def __init__(self, input_dim=3, hidden_size=128, num_layers=2, dropout=0.2):
+    def __init__(self, input_dim=3, hidden_size=64, num_layers=2, dropout=0.2):
         super().__init__()
         self.lstm = nn.LSTM(
             input_size=input_dim, hidden_size=hidden_size,
@@ -30,8 +30,8 @@ class LSTMSoC(nn.Module):
 
 def train_lstm_soc(
     X_train, y_train, X_val, y_val,
-    hidden_size=128, num_layers=2, dropout=0.2,
-    lr=1e-3, batch_size=256, epochs=50, patience=7,
+    hidden_size=64, num_layers=2, dropout=0.2,
+    lr=5e-3, batch_size=1024, epochs=5, patience=4,
     device=None, save_path="modules/soc/models/lstm_soc_baseline.pth"
 ):
     if device is None:
