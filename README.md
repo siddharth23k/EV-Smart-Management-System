@@ -493,18 +493,3 @@ python test_system.py  # Runs comprehensive diagnostics
 source .venv/bin/activate
 python -c "import sys; print(sys.path)"
 ```
-
----
-
-<div align="center">
-
-### **Production-Ready EV Intelligence System**
-
-**⚡ 350+ samples/second • 92.3% accuracy • 65% energy recovery**
-
-[![GitHub stars](https://img.shields.io/github/stars/siddharth23k/EV-Smart-Management-System?style=social)](https://github.com/siddharth23k/EV-Smart-Management-System)
-[![GitHub forks](https://img.shields.io/github/forks/siddharth23k/EV-Smart-Management-System?style=social)](https://github.com/siddharth23k/EV-Smart-Management-System)
-[![GitHub issues](https://img.shields.io/github/issues/siddharth23k/EV-Smart-Management-System)](https://github.com/siddharth23k/EV-Smart-Management-System)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-</div>
