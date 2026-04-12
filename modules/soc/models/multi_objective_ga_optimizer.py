@@ -63,11 +63,11 @@ class MultiObjectiveSoCGAOptimizer:
     def __init__(
         self,
         X_train, y_train, X_val, y_val,
-        population_size: int = 12,
-        generations: int = 8,
+        population_size: int = 2,
+        generations: int = 1,
         mutation_rate: float = 0.2,
         tournament_size: int = 3,
-        max_epochs: int = 15,
+        max_epochs: int = 5,
         device=None,
         # Objective weights
         w_rmse: float = 0.5,
