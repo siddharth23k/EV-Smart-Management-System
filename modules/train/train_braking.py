@@ -244,17 +244,38 @@ def main():
         paths = config.get_paths_config()
         data_path = paths['data']['braking']
         
-        X_train = np.load(os.path.join(data_path, "X_train.npy"))
-        y_train = np.load(os.path.join(data_path, "y_train.npy"))
-        X_val = np.load(os.path.join(data_path, "X_val.npy"))
-        y_val = np.load(os.path.join(data_path, "y_val.npy"))
+        # Prioritize realistic EV simulation dataset
+        if os.path.exists(os.path.join(data_path, "X_train_realistic.npy")):
+            print("Using realistic EV simulation dataset...")
+            X_train = np.load(os.path.join(data_path, "X_train_realistic.npy"))
+            y_class_train = np.load(os.path.join(data_path, "y_class_train_realistic.npy"))
+            y_int_train = np.load(os.path.join(data_path, "y_int_train_realistic.npy"))
+            X_val = np.load(os.path.join(data_path, "X_val_realistic.npy"))
+            y_class_val = np.load(os.path.join(data_path, "y_class_val_realistic.npy"))
+            y_int_val = np.load(os.path.join(data_path, "y_int_val_realistic.npy"))
+            
+            # For baseline training, use class labels
+            y_train = y_class_train
+            y_val = y_class_val
+            print("✅ Realistic EV simulation dataset loaded")
+        else:
+            # Fallback to original hard multitask dataset
+            print("Using hard multitask dataset...")
+            X_train = np.load(os.path.join(data_path, "X_train_hard_mtl.npy"))
+            y_class_train = np.load(os.path.join(data_path, "y_class_train_hard_mtl.npy"))
+            y_int_train = np.load(os.path.join(data_path, "y_int_train_hard_mtl.npy"))
+            X_val = np.load(os.path.join(data_path, "X_val_hard_mtl.npy"))
+            y_class_val = np.load(os.path.join(data_path, "y_class_val_hard_mtl.npy"))
+            y_int_val = np.load(os.path.join(data_path, "y_int_val_hard_mtl.npy"))
+            
+            # For baseline training, use class labels
+            y_train = y_class_train
+            y_val = y_class_val
+            print("✅ Hard multitask dataset loaded")
         
-        # For multitask, check if intensity labels exist
-        y_int_train = None
-        y_int_val = None
-        if os.path.exists(os.path.join(data_path, "y_int_train.npy")):
-            y_int_train = np.load(os.path.join(data_path, "y_int_train.npy"))
-            y_int_val = np.load(os.path.join(data_path, "y_int_val.npy"))
+        # Ensure intensity labels are available for multitask training
+        if y_int_train is None or y_int_val is None:
+            print("❌ Intensity labels not found for multitask training")
         
         print(f"Training data shape: {X_train.shape}")
         print(f"Training labels shape: {y_train.shape}")

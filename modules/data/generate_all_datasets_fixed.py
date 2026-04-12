@@ -16,6 +16,7 @@ sys.path.append(project_root)
 from modules.braking.data.generate_dataset import generate_dataset, split_dataset
 from modules.braking.data.generate_hard_braking_data import generate_dataset as generate_hard
 from modules.braking.data.generate_hard_braking_data_mtl import generate_dataset_mtl as generate_hard_mtl
+from modules.braking.data.realistic_ev_simulation import generate_realistic_dataset
 from modules.soc.data.preprocess import main as preprocess_soc
 
 def ensure_dir(path):
@@ -69,6 +70,13 @@ def save_braking_datasets():
     np.save('modules/braking/data/X_test_hard_mtl.npy', X_test_mtl)
     np.save('modules/braking/data/y_class_test_hard_mtl.npy', y_class_test_mtl)
     np.save('modules/braking/data/y_int_test_hard_mtl.npy', y_int_test_mtl)
+    
+    # 4. Realistic EV simulation dataset (NEW - primary production dataset)
+    print("4. Realistic EV simulation dataset (physics-based)...")
+    X_real, y_class_real, y_int_real = generate_realistic_dataset(
+        n_samples=15000,
+        save_path="modules/braking/data"
+    )
     
     print("✅ Braking datasets saved!")
 

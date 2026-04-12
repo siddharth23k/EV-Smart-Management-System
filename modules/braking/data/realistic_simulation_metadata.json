@@ -1,0 +1,36 @@
+{
+  "vehicle_parameters": {
+    "mass": 1800.0,
+    "max_regen_power": 60000.0,
+    "max_mechanical_brake": 8000.0,
+    "frontal_area": 2.5,
+    "drag_coefficient": 0.28,
+    "rolling_resistance": 0.015,
+    "wheel_radius": 0.35,
+    "motor_efficiency": 0.95,
+    "regen_efficiency_curve": {
+      "0.0": 0.0,
+      "2.78": 0.3,
+      "5.56": 0.5,
+      "8.33": 0.65,
+      "11.11": 0.75,
+      "13.89": 0.8,
+      "16.67": 0.82,
+      "19.44": 0.8,
+      "22.22": 0.75,
+      "25.0": 0.7,
+      "27.78": 0.65,
+      "30.56": 0.6
+    }
+  },
+  "road_conditions": {
+    "slope": -1.1746613069276834,
+    "friction_coefficient": 0.8,
+    "wind_speed": 0.0,
+    "air_density": 1.225
+  },
+  "simulation_parameters": {
+    "dt": 0.1,
+    "seq_len": 75
+  }
+}
