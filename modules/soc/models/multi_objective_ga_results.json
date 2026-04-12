@@ -2,15 +2,111 @@
     "best_combined": {
         "hyperparams": {
             "learning_rate": 0.0005,
-            "batch_size": 256,
+            "batch_size": 32,
             "lstm_hidden": 256,
-            "num_lstm_layers": 1,
-            "dropout_rate": 0.3,
-            "cnn_channels": 32,
-            "attention_heads": 4,
+            "num_lstm_layers": 2,
+            "dropout_rate": 0.4,
+            "cnn_channels": 16,
+            "attention_heads": 1,
             "use_layer_norm": true,
-            "bidirectional": false
+            "bidirectional": true
         },
         "fitness": [
-            -0.05051604017615318,
-            
+            -0.062131777359172705,
+            -0.12337059527635574,
+            -0.00027720904350280763,
+            -0.0018165817018598318
+        ],
+        "rmse": 0.12337059527635574,
+        "inference_time": 0.00027720904350280763,
+        "robustness_loss": 0.0018165817018598318
+    },
+    "best_rmse": {
+        "hyperparams": {
+            "learning_rate": 0.0005,
+            "batch_size": 32,
+            "lstm_hidden": 256,
+            "num_lstm_layers": 2,
+            "dropout_rate": 0.4,
+            "cnn_channels": 16,
+            "attention_heads": 1,
+            "use_layer_norm": true,
+            "bidirectional": true
+        },
+        "fitness": [
+            -0.062131777359172705,
+            -0.12337059527635574,
+            -0.00027720904350280763,
+            -0.0018165817018598318
+        ],
+        "rmse": 0.12337059527635574,
+        "inference_time": 0.00027720904350280763,
+        "robustness_loss": 0.0018165817018598318
+    },
+    "best_efficiency": {
+        "hyperparams": {
+            "learning_rate": 0.0005,
+            "batch_size": 32,
+            "lstm_hidden": 256,
+            "num_lstm_layers": 2,
+            "dropout_rate": 0.4,
+            "cnn_channels": 16,
+            "attention_heads": 1,
+            "use_layer_norm": true,
+            "bidirectional": true
+        },
+        "fitness": [
+            -0.062131777359172705,
+            -0.12337059527635574,
+            -0.00027720904350280763,
+            -0.0018165817018598318
+        ],
+        "rmse": 0.12337059527635574,
+        "inference_time": 0.00027720904350280763,
+        "robustness_loss": 0.0018165817018598318
+    },
+    "best_robustness": {
+        "hyperparams": {
+            "learning_rate": 0.0005,
+            "batch_size": 32,
+            "lstm_hidden": 256,
+            "num_lstm_layers": 2,
+            "dropout_rate": 0.4,
+            "cnn_channels": 16,
+            "attention_heads": 1,
+            "use_layer_norm": true,
+            "bidirectional": true
+        },
+        "fitness": [
+            -0.062131777359172705,
+            -0.12337059527635574,
+            -0.00027720904350280763,
+            -0.0018165817018598318
+        ],
+        "rmse": 0.12337059527635574,
+        "inference_time": 0.00027720904350280763,
+        "robustness_loss": 0.0018165817018598318
+    },
+    "history": {
+        "combined": [
+            -0.062131777359172705,
+            -0.062131777359172705,
+            -0.062131777359172705
+        ],
+        "rmse": [
+            -0.12337059527635574,
+            -0.12337059527635574,
+            -0.12337059527635574
+        ],
+        "efficiency": [
+            -0.00027720904350280763,
+            -0.00027720904350280763,
+            -0.00027720904350280763
+        ],
+        "robustness": [
+            -0.0018165817018598318,
+            -0.0018165817018598318,
+            -0.0018165817018598318
+        ]
+    }
+}

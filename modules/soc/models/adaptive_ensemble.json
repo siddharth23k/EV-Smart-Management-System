@@ -1,0 +1,10 @@
+{
+    "weights": [
+        0.3710380878949988,
+        0.07398045351262862,
+        0.5549814585923727
+    ],
+    "adaptation_rate": 0.1,
+    "performance_history": {
+        "lstm_cnn": [
+            
