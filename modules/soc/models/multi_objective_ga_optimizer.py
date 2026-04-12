@@ -81,8 +81,14 @@ class MultiObjectiveSoCGAOptimizer:
         self.mutation_rate = mutation_rate
         self.tournament_size = min(tournament_size, population_size)
         self.max_epochs = max_epochs
-        self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        
+        if device:
+            self.device = device
+        elif torch.backends.mps.is_available():
+            self.device = torch.device("mps")  # Mac GPU
+        elif torch.cuda.is_available():
+            self.device = torch.device("cuda")
+        else:
+            self.device = torch.device("cpu")        
         # Objective weights (should sum to 1.0)
         self.w_rmse = w_rmse
         self.w_efficiency = w_efficiency
@@ -527,12 +533,22 @@ def run_multi_objective_soc_ga():
     X_val = np.load(f"{DATA}/X_val_soc.npy")
     y_val = np.load(f"{DATA}/y_val_soc.npy")
 
+    # SPEEDUP: sample smaller dataset
+    sample_size = 50000
+    idx = np.random.choice(len(X_train), sample_size, replace=False)
+    X_train = X_train[idx]
+    y_train = y_train[idx]
+
+    # optional
+    X_train = X_train[:, :25, :]
+    X_val = X_val[:, :25, :]
+
     print(f"Train: {X_train.shape}, Val: {X_val.shape}")
 
     ga = MultiObjectiveSoCGAOptimizer(
         X_train, y_train, X_val, y_val,
-        population_size=8, generations=5,
-        mutation_rate=0.2, max_epochs=8,
+        population_size=2, generations=2,
+        mutation_rate=0.2, max_epochs=3,
         w_rmse=0.5, w_efficiency=0.3, w_robustness=0.2,
     )
     
@@ -554,11 +570,28 @@ def run_multi_objective_soc_ga():
     print(f"   Best Efficiency: {results['best_efficiency']['inference_time']*1000:.2f}ms")
     print(f"   Best Robustness: {results['best_robustness']['robustness_loss']:.4f}")
 
+    # Convert numpy types to regular Python types for JSON serialization
+    def convert_numpy_types(obj):
+        if isinstance(obj, np.float32):
+            return float(obj)
+        elif isinstance(obj, np.int32):
+            return int(obj)
+        elif isinstance(obj, dict):
+            return {k: convert_numpy_types(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_numpy_types(item) for item in obj]
+        elif isinstance(obj, tuple):
+            return tuple(convert_numpy_types(item) for item in obj)
+        else:
+            return obj
+    
+    serializable_results = convert_numpy_types(results)
+    
     # Save results
     os.makedirs("modules/soc/models", exist_ok=True)
     with open("modules/soc/models/multi_objective_ga_results.json", "w") as f:
-        json.dump(results, f, indent=4)
-    print("✅ Results saved: modules/soc/models/multi_objective_ga_results.json")
+        json.dump(serializable_results, f, indent=4)
+    print("Results saved: modules/soc/models/multi_objective_ga_results.json")
 
     # Plot fitness curves
     plt.figure(figsize=(12, 8))

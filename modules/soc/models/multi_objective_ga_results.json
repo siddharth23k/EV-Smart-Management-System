@@ -1,0 +1,16 @@
+{
+    "best_combined": {
+        "hyperparams": {
+            "learning_rate": 0.0005,
+            "batch_size": 256,
+            "lstm_hidden": 256,
+            "num_lstm_layers": 1,
+            "dropout_rate": 0.3,
+            "cnn_channels": 32,
+            "attention_heads": 4,
+            "use_layer_norm": true,
+            "bidirectional": false
+        },
+        "fitness": [
+            -0.05051604017615318,
+            
