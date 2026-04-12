@@ -88,12 +88,12 @@ class InputValidator:
             if np.any(np.isnan(battery_window)) or np.any(np.isinf(battery_window)):
                 raise ValueError("Battery window contains NaN or Inf values")
             
-            # Check reasonable ranges for battery data
-            # Voltage should be around 2.5-4.2V for Li-ion
+            # Check reasonable ranges for battery data (normalized)
+            # After normalization, values should be roughly in range [-3, 3]
             if battery_window.shape[1] >= 1:  # If voltage channel exists
                 voltage = battery_window[:, 0]
-                if np.any(voltage < 0) or np.any(voltage > 10):
-                    logger.warning("Voltage values outside expected range (0-10V)")
+                if np.any(np.abs(voltage) > 5):
+                    logger.warning("Normalized voltage values seem unusual (abs > 5)")
             
             return True
             
