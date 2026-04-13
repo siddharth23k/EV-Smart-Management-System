@@ -26,13 +26,17 @@ def print_header():
     print("=" * 80)
 
 def run_data_generation():
-    """Run complete data generation pipeline."""
+    """Run complete data generation pipeline using config parameters."""
     print("\n" + "=" * 60)
     print("📊 PHASE 1: DATASET GENERATION")
     print("=" * 60)
     
     try:
-        print("Generating braking and SoC datasets...")
+        from shared.config import get_config
+        config = get_config()
+        paths_config = config.get_paths_config()
+        
+        print("Generating braking and SoC datasets using config parameters...")
         start_time = time.time()
         
         # Import and run data generation
@@ -43,16 +47,16 @@ def run_data_generation():
         end_time = time.time()
         print(f"✅ Dataset generation completed in {end_time - start_time:.2f}s")
         
-        # Verify datasets exist
+        # Verify datasets exist using config paths
         required_files = [
-            "modules/braking/data/X_train.npy",
-            "modules/braking/data/y_train.npy",
-            "modules/braking/data/X_val.npy", 
-            "modules/braking/data/y_val.npy",
-            "modules/soc/data/X_train_soc.npy",
-            "modules/soc/data/y_train_soc.npy",
-            "modules/soc/data/X_val_soc.npy",
-            "modules/soc/data/y_val_soc.npy"
+            os.path.join(paths_config['data']['braking'], "X_train.npy"),
+            os.path.join(paths_config['data']['braking'], "y_train.npy"),
+            os.path.join(paths_config['data']['braking'], "X_val.npy"), 
+            os.path.join(paths_config['data']['braking'], "y_val.npy"),
+            os.path.join(paths_config['data']['soc'], "X_train_soc.npy"),
+            os.path.join(paths_config['data']['soc'], "y_train_soc.npy"),
+            os.path.join(paths_config['data']['soc'], "X_val_soc.npy"),
+            os.path.join(paths_config['data']['soc'], "y_val_soc.npy")
         ]
         
         missing_files = [f for f in required_files if not os.path.exists(f)]
@@ -68,13 +72,21 @@ def run_data_generation():
         return False
 
 def run_model_training():
-    """Run complete model training pipeline."""
+    """Run complete model training pipeline using config parameters."""
     print("\n" + "=" * 60)
     print("🧠 PHASE 2: MODEL TRAINING")
     print("=" * 60)
     
     try:
-        print("Training braking and SoC models with optimized parameters...")
+        from shared.config import get_config
+        config = get_config()
+        paths_config = config.get_paths_config()
+        training_config = config.get_training_config()
+        
+        print("Training braking and SoC models with config parameters...")
+        print(f"Batch size: {training_config.get('batch_size', 32)}")
+        print(f"Learning rate: {training_config.get('learning_rate', 0.001)}")
+        
         start_time = time.time()
         
         # Train braking models
@@ -104,10 +116,10 @@ def run_model_training():
         end_time = time.time()
         print(f"\n✅ Model training completed in {end_time - start_time:.2f}s")
         
-        # Verify models exist
+        # Verify models exist using config paths
         required_models = [
-            "modules/braking/models/final_multitask_model.pth",
-            "modules/soc/models/lstm_cnn_attention_soc.pth"
+            os.path.join(paths_config['models']['braking'], "final_multitask_model.pth"),
+            os.path.join(paths_config['models']['soc'], "lstm_cnn_attention_soc.pth")
         ]
         
         missing_models = [m for m in required_models if not os.path.exists(m)]
@@ -237,43 +249,61 @@ def run_performance_analysis():
         return False
 
 def generate_final_report():
-    """Generate comprehensive final report."""
+    """Generate comprehensive final report using config parameters."""
     print("\n" + "=" * 60)
     print("📋 PHASE 5: FINAL REPORT")
     print("=" * 60)
     
     try:
-        # Check system status
+        from shared.config import get_config
+        config = get_config()
+        paths_config = config.get_paths_config()
+        inference_config = config.get_inference_config()
+        performance_config = config.get_performance_config()
+        training_config = config.get_training_config()
+        
+        # Check system status using config paths
         datasets_exist = all([
-            os.path.exists("modules/braking/data/X_train.npy"),
-            os.path.exists("modules/soc/data/X_train_soc.npy")
+            os.path.exists(os.path.join(paths_config['data']['braking'], "X_train.npy")),
+            os.path.exists(os.path.join(paths_config['data']['soc'], "X_train_soc.npy"))
         ])
         
         models_exist = all([
-            os.path.exists("modules/braking/models/final_multitask_model.pth"),
-            os.path.exists("modules/soc/models/lstm_cnn_attention_soc.pth")
+            os.path.exists(os.path.join(paths_config['models']['braking'], "final_multitask_model.pth")),
+            os.path.exists(os.path.join(paths_config['models']['soc'], "lstm_cnn_attention_soc.pth"))
         ])
         
         print("🎯 SYSTEM STATUS:")
         print(f"  ✅ Datasets: {'Generated' if datasets_exist else 'Missing'}")
         print(f"  ✅ Models: {'Trained' if models_exist else 'Missing'}")
         print(f"  ✅ Pipeline: 'Operational'")
-        print(f"  ✅ Quantization: 'Enabled'")
-        print(f"  ✅ Input Validation: 'Enabled'")
+        print(f"  ✅ Quantization: {'Enabled' if inference_config.get('quantization', True) else 'Disabled'}")
+        print(f"  ✅ Input Validation: {'Enabled' if inference_config.get('validate_inputs', True) else 'Disabled'}")
         print(f"  ✅ Batch Processing: 'Enabled'")
         print(f"  ✅ Error Handling: 'Enabled'")
+        print(f"  ✅ Device: {config.get('system.device', 'auto')}")
         
         print("\n🚀 CAPABILITIES:")
         print("  🚗️ Braking Intention: Light/Normal/Emergency classification")
         print("  🔋 Battery SoC: Real-time state estimation")
         print("  ⚡ Regenerative Braking: Energy recovery optimization")
         print("  🎯 System Actions: EV controller recommendations")
+        print(f"  📊 Regen Efficiency: {performance_config.get('regen_efficiency', 0.65)*100:.0f}%")
+        print(f"  📊 SoC Update Rate: {performance_config.get('soc_update_rate', 1.0)}")
         print("  📊 Performance: 350+ samples/second throughput")
         
         print("\n🌐 DEPLOYMENT OPTIONS:")
         print("  🖥️  Local: python run_enhanced.py --demo all")
+        print("  🖥️  Unified: python run_unified.py")
         print("  🌊 Streamlit: streamlit run ui/app.py")
         print("  📱 Edge: Optimized for embedded deployment")
+        
+        print("\n📊 CONFIGURATION USED:")
+        print(f"  📁 Config File: {config.config_path}")
+        print(f"  🧠 Braking Window: {config.get('data.braking.window_size', 75)}")
+        print(f"  🔋 SoC Window: {config.get('data.soc.window_size', 50)}")
+        print(f"  📦 Batch Size: {training_config.get('batch_size', 32)}")
+        print(f"  🎓 Learning Rate: {training_config.get('learning_rate', 0.001)}")
         
         print("\n" + "=" * 60)
         print("🎉 COMPLETE PIPELINE EXECUTION SUCCESSFUL!")
