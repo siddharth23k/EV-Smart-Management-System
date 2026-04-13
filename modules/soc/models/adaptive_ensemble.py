@@ -553,12 +553,27 @@ def train_adaptive_ensemble():
     # Save ensemble
     ensemble.save_ensemble()
     
+    # Convert numpy types to regular Python types for JSON serialization
+    def convert_numpy_types(obj):
+        if hasattr(obj, 'tolist'):  # numpy arrays
+            return obj.tolist()
+        elif isinstance(obj, np.float32):
+            return float(obj)
+        elif isinstance(obj, np.int32):
+            return int(obj)
+        elif isinstance(obj, dict):
+            return {k: convert_numpy_types(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_numpy_types(item) for item in obj]
+        else:
+            return obj
+    
     # Save results
     results = {
-        'training_results': training_results,
-        'final_evaluation': final_results,
-        'ga_optimized_weights': best_weights.tolist(),
-        'ga_best_rmse': best_rmse
+        'training_results': convert_numpy_types(training_results),
+        'final_evaluation': convert_numpy_types(final_results),
+        'ga_optimized_weights': convert_numpy_types(best_weights.tolist()),
+        'ga_best_rmse': float(best_rmse)
     }
     
     with open("modules/soc/models/adaptive_ensemble_results.json", "w") as f:

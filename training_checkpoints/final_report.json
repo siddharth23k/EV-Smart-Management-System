@@ -1,0 +1,24 @@
+{
+    "training_summary": {
+        "total_duration": 2639.75306892395,
+        "start_time": "2026-04-13T00:39:41.272657",
+        "end_time": "2026-04-13T01:23:41.025741",
+        "components_trained": 1,
+        "components_failed": 1
+    },
+    "component_results": {
+        "Multi-Objective GA": {
+            "status": "success",
+            "duration": 247.42364716529846,
+            "output": "ence Time: 0.89ms\n   Robustness Loss: 0.0042\n   Hyperparameters: {'learning_rate': 0.0001, 'batch_size': 32, 'lstm_hidden': 256, 'num_lstm_layers': 2, 'dropout_rate': 0.2, 'cnn_channels': 32, 'attention_heads': 8, 'use_layer_norm': False, 'bidirectional': False}\n\n\ud83c\udfaf BEST INDIVIDUAL OBJECTIVES:\n   Best RMSE: 0.0980\n   Best Efficiency: 0.04ms\n   Best Robustness: 0.0003\nResults saved: modules/soc/models/multi_objective_ga_results.json\n\u2705 Fitness plots saved: assets/img/multi_objective_ga_fitness.png\n"
+        },
+        "Adaptive Ensemble": {
+            "status": "failed",
+            "duration": 2392.3147373199463,
+            "error": "n _iterencode_dict\n    yield from chunks\n  File \"/opt/homebrew/Cellar/python@3.11/3.11.12_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/encoder.py\", line 439, in _iterencode\n    o = _default(o)\n        ^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.11/3.11.12_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/encoder.py\", line 180, in default\n    raise TypeError(f'Object of type {o.__class__.__name__} '\nTypeError: Object of type float32 is not JSON serializable\n"
+        }
+    },
+    "recommendations": [
+        "Adaptive Ensemble: Check error logs and fix issues"
+    ]
+}

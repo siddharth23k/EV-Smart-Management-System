@@ -1,0 +1,11 @@
+{
+    "timestamp": "2026-04-13T00:43:48.702388",
+    "total_duration": 247.4297411441803,
+    "results": {
+        "Multi-Objective GA": {
+            "status": "success",
+            "duration": 247.42364716529846,
+            "output": "ence Time: 0.89ms\n   Robustness Loss: 0.0042\n   Hyperparameters: {'learning_rate': 0.0001, 'batch_size': 32, 'lstm_hidden': 256, 'num_lstm_layers': 2, 'dropout_rate': 0.2, 'cnn_channels': 32, 'attention_heads': 8, 'use_layer_norm': False, 'bidirectional': False}\n\n\ud83c\udfaf BEST INDIVIDUAL OBJECTIVES:\n   Best RMSE: 0.0980\n   Best Efficiency: 0.04ms\n   Best Robustness: 0.0003\nResults saved: modules/soc/models/multi_objective_ga_results.json\n\u2705 Fitness plots saved: assets/img/multi_objective_ga_fitness.png\n"
+        }
+    }
+}

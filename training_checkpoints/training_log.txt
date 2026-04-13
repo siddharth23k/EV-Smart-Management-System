@@ -1,0 +1,16 @@
+[2026-04-13 00:39:05] PHASE 1: Starting Foundation Models Training
+[2026-04-13 00:39:05] Multi-Objective GA: Starting - Command: python modules/soc/models/multi_objective_ga_optimizer.py
+[2026-04-13 00:39:05] Multi-Objective GA: FAILED - Error: SID/projects/EV-Smart-Management-System/modules/soc/models/multi_objective_ga_optimizer.py", line 15, in <module>
+    import matplotlib.pyplot as plt
+ModuleNotFoundError: No module named 'matplotlib'
+
+[2026-04-13 00:39:05] PHASE 1: STOPPED - Multi-Objective GA failed
+[2026-04-13 00:39:41] PHASE 1: Starting Foundation Models Training
+[2026-04-13 00:39:41] Multi-Objective GA: Starting - Command: python modules/soc/models/multi_objective_ga_optimizer.py
+[2026-04-13 00:43:48] Multi-Objective GA: SUCCESS - Duration: 247.4s
+[2026-04-13 00:43:48] Adaptive Ensemble: Starting - Command: python modules/soc/models/adaptive_ensemble.py
+[2026-04-13 01:23:41] Adaptive Ensemble: FAILED - Error: .framework/Versions/3.11/lib/python3.11/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type float32 is not JSON serializable
+
+[2026-04-13 01:23:41] PHASE 1: STOPPED - Adaptive Ensemble failed

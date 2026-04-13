@@ -45,12 +45,21 @@ class CompleteTrainingPipeline:
         
         try:
             start = time.time()
+            
+            # Use the same Python executable that's running this script
+            python_executable = sys.executable
+            
+            # Replace python with full path
+            if command.startswith("python "):
+                command = command.replace("python ", python_executable + " ", 1)
+            
             result = subprocess.run(
                 command.split(),
                 capture_output=True,
                 text=True,
                 timeout=timeout,
-                cwd=project_root
+                cwd=project_root,
+                env=os.environ.copy()  # Use current environment
             )
             
             duration = time.time() - start
