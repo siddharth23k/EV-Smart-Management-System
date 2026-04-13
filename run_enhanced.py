@@ -18,23 +18,23 @@ from shared.enhanced_utils import EnhancedEVPipeline
 
 def print_header():
     print("=" * 70)
-    print("🚀 ENHANCED EV SMART MANAGEMENT SYSTEM")
+    print("ENHANCED EV SMART MANAGEMENT SYSTEM")
     print("=" * 70)
     print("Features: Input Validation | Error Handling | Batch Inference | Quantization")
     print("=" * 70)
 
 def print_model_info(pipeline):
     info = pipeline.get_model_info()
-    print("\n📊 MODEL STATUS:")
-    print(f"  Braking Model: {'✅ Loaded' if info['braking_model_loaded'] else '❌ Not Found'}")
-    print(f"  SoC Model: {'✅ Loaded' if info['soc_model_loaded'] else '❌ Not Found'}")
-    print(f"  Quantization: {'✅ Enabled' if info['config']['quantization_enabled'] else '❌ Disabled'}")
-    print(f"  Input Validation: {'✅ Enabled' if info['config']['input_validation'] else '❌ Disabled'}")
+    print("\nMODEL STATUS:")
+    print(f"  Braking Model: {'Loaded' if info['braking_model_loaded'] else 'Not Found'}")
+    print(f"  SoC Model: {'Loaded' if info['soc_model_loaded'] else 'Not Found'}")
+    print(f"  Quantization: {'Enabled' if info['config']['quantization_enabled'] else 'Disabled'}")
+    print(f"  Input Validation: {'Enabled' if info['config']['input_validation'] else 'Disabled'}")
     print(f"  Device: {info['device']}")
 
 def run_single_inference_demo(pipeline):
     print("\n" + "=" * 70)
-    print("🔬 SINGLE INFERENCE DEMONSTRATION")
+    print("SINGLE INFERENCE DEMONSTRATION")
     print("=" * 70)
     
     try:
@@ -48,8 +48,8 @@ def run_single_inference_demo(pipeline):
         result = pipeline.run(driving_window, battery_window, current_soc)
         end_time = time.time()
         
-        print(f"\n⚡ Inference completed in {(end_time - start_time)*1000:.2f}ms")
-        print("\n📋 RESULTS:")
+        print(f"\nInference completed in {(end_time - start_time)*1000:.2f}ms")
+        print("\nRESULTS:")
         print(f"  Braking: {result['braking']['class']} (confidence: {result['braking']['confidence']:.2f})")
         print(f"  Intensity: {result['braking']['intensity']:.3f}")
         print(f"  Energy Recovered: {result['energy']['recovered_normalised']:.3f}")
@@ -59,12 +59,12 @@ def run_single_inference_demo(pipeline):
         return True
         
     except Exception as e:
-        print(f"❌ Single inference failed: {e}")
+        print(f"Single inference failed: {e}")
         return False
 
 def run_batch_inference_demo(pipeline):
     print("\n" + "=" * 70)
-    print("📦 BATCH INFERENCE DEMONSTRATION")
+    print("BATCH INFERENCE DEMONSTRATION")
     print("=" * 70)
     
     try:
@@ -81,11 +81,11 @@ def run_batch_inference_demo(pipeline):
         
         total_time = end_time - start_time
         avg_time = total_time / batch_size
-        print(f"\n⚡ Batch inference completed in {total_time*1000:.2f}ms")
+        print(f"\nBatch inference completed in {total_time*1000:.2f}ms")
         print(f"   Average per sample: {avg_time*1000:.2f}ms")
         print(f"   Throughput: {batch_size/total_time:.1f} samples/second")
         
-        print("\n📋 BATCH RESULTS:")
+        print("\nBATCH RESULTS:")
         for i, result in enumerate(results):
             print(f"  Sample {i+1}: {result['braking']['class']} | "
                   f"SoC {result['soc']['current']:.2f}→{result['soc']['updated']:.2f} | "
@@ -94,12 +94,12 @@ def run_batch_inference_demo(pipeline):
         return True
         
     except Exception as e:
-        print(f"❌ Batch inference failed: {e}")
+        print(f"Batch inference failed: {e}")
         return False
 
 def run_validation_demo(pipeline):
     print("\n" + "=" * 70)
-    print("🛡️  INPUT VALIDATION DEMONSTRATION")
+    print("INPUT VALIDATION DEMONSTRATION")
     print("=" * 70)
     
     test_cases = [
@@ -111,7 +111,7 @@ def run_validation_demo(pipeline):
     
     for test_name, input_func in test_cases:
         try:
-            print(f"\n🧪 Testing: {test_name}")
+            print(f"\nTesting: {test_name}")
             inputs = input_func()
             if len(inputs) == 3:
                 driving_window, battery_window, current_soc = inputs
@@ -120,14 +120,14 @@ def run_validation_demo(pipeline):
                 current_soc = 1.5 if "Invalid SoC" in test_name else 0.65
             
             result = pipeline.run(driving_window, battery_window, current_soc)
-            print(f"   ✅ Passed: {result['braking']['class']}")
+            print(f"   Passed: {result['braking']['class']}")
             
         except Exception as e:
-            print(f"   ❌ Failed: {str(e)[:80]}...")
+            print(f"   Failed: {str(e)[:80]}...")
 
 def run_performance_benchmark(pipeline):
     print("\n" + "=" * 70)
-    print("🏎️  PERFORMANCE BENCHMARK")
+    print("PERFORMANCE BENCHMARK")
     print("=" * 70)
     
     try:
@@ -159,7 +159,7 @@ def run_performance_benchmark(pipeline):
         return True
         
     except Exception as e:
-        print(f"❌ Benchmark failed: {e}")
+        print(f"Benchmark failed: {e}")
         return False
 
 def main():
@@ -175,13 +175,13 @@ def main():
     print_header()
     
     try:
-        print("🔧 Initializing Enhanced EV Pipeline...")
+        print("Initializing Enhanced EV Pipeline...")
         pipeline = EnhancedEVPipeline(args.config)
         
         if args.device != "auto":
             import torch
             device = torch.device(args.device)
-            print(f"📱 Using specified device: {device}")
+            print(f"Using specified device: {device}")
         
         print_model_info(pipeline)
         
@@ -209,20 +209,20 @@ def main():
                 success_count += 1
         
         print("\n" + "=" * 70)
-        print("📊 SUMMARY")
+        print("SUMMARY")
         print("=" * 70)
         print(f"Demos completed: {success_count}/{total_count}")
         
         if success_count == total_count:
-            print("🎉 All demos completed successfully!")
-            print("✅ Enhanced EV Smart Management System is fully operational!")
+            print("All demos completed successfully!")
+            print("Enhanced EV Smart Management System is fully operational!")
         else:
-            print("⚠️  Some demos failed. Check the errors above.")
+            print("Some demos failed. Check the errors above.")
         
         return success_count == total_count
         
     except Exception as e:
-        print(f"❌ System initialization failed: {e}")
+        print(f"System initialization failed: {e}")
         print("Please check:")
         print("  1. Configuration file exists and is valid")
         print("  2. Model files are trained and available")

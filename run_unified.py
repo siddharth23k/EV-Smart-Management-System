@@ -77,45 +77,45 @@ def print_result(result: dict):
     print("="*55)
 
     b = result["braking"]
-    print(f"\n🚗 BRAKING INTENTION MODULE")
+    print(f"\nBRAKING INTENTION MODULE")
     print(f"   Class     : {b['class']}")
     print(f"   Intensity : {b['intensity']:.4f}  (0=light, 1=emergency)")
 
     e = result["energy"]
-    print(f"\n⚡ REGENERATIVE BRAKING")
+    print(f"\nREGENERATIVE BRAKING")
     print(f"   Energy Recovered : {e['recovered_normalised']:.6f} (normalised)")
     print(f"   Regen Efficiency : {e['regen_efficiency']*100:.0f}%")
 
     s = result["soc"]
-    print(f"\n🔋 BATTERY SOC MODULE")
+    print(f"\nBATTERY SOC MODULE")
     print(f"   Estimated SOC : {s['estimated']:.4f}  ({s['estimated']*100:.1f}%)")
     print(f"   Updated SOC   : {s['updated']:.4f}  ({s['updated']*100:.1f}%)")
     print(f"   SOC Delta     : +{s['delta']:.6f}")
 
-    print(f"\n🎯 SYSTEM ACTION")
+    print(f"\nSYSTEM ACTION")
     print(f"   {result['system_action']}")
     print("="*55 + "\n")
 
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("🚀 UNIFIED EV SMART MANAGEMENT SYSTEM")
+    print("UNIFIED EV SMART MANAGEMENT SYSTEM")
     print("=" * 60)
     print("Using exact configuration parameters from config system")
     print("=" * 60)
     
     try:
-        print("🔧 Initializing Enhanced EV Pipeline...")
+        print("Initializing Enhanced EV Pipeline...")
         pipeline = EnhancedEVPipeline()
         
         # Get model info
         info = pipeline.get_model_info()
-        print(f"✅ Braking Model: {'Loaded' if info['braking_model_loaded'] else 'Not Found'}")
-        print(f"✅ SoC Model: {'Loaded' if info['soc_model_loaded'] else 'Not Found'}")
-        print(f"✅ Device: {info['device']}")
-        print(f"✅ Quantization: {'Enabled' if info['config']['quantization_enabled'] else 'Disabled'}")
+        print(f"Braking Model: {'Loaded' if info['braking_model_loaded'] else 'Not Found'}")
+        print(f"SoC Model: {'Loaded' if info['soc_model_loaded'] else 'Not Found'}")
+        print(f"Device: {info['device']}")
+        print(f"Quantization: {'Enabled' if info['config']['quantization_enabled'] else 'Disabled'}")
         
-        print("\n📊 Generating sample inputs using config parameters...")
+        print("\nGenerating sample inputs using config parameters...")
         driving_window, battery_window = generate_sample_inputs()
         
         config = get_config()
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         print(f"Battery window shape : {battery_window.shape} (config: {soc_config.get('window_size', 50)}, {soc_config.get('features', 3)})")
         
         # Run unified inference
-        print("\n🔬 Running unified inference...")
+        print("\nRunning unified inference...")
         result = pipeline.run(
             driving_window=driving_window,
             battery_window=battery_window,
@@ -135,10 +135,10 @@ if __name__ == "__main__":
         
         print_result(result)
         
-        print("\n✅ Unified system execution completed successfully!")
+        print("\nUnified system execution completed successfully!")
         
     except Exception as e:
-        print(f"❌ System execution failed: {e}")
+        print(f"System execution failed: {e}")
         print("Please check:")
         print("  1. Configuration file exists and is valid")
         print("  2. Model files are trained and available")

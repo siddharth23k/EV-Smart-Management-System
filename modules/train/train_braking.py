@@ -205,7 +205,7 @@ def train_multitask_model(X_train, y_class_train, y_int_train, X_val, y_class_va
                 print(f"Early stopping at epoch {epoch}")
                 break
     
-    print("✅ Multitask model training complete!")
+    print("Multitask model training complete!")
     return model
 
 
@@ -251,7 +251,7 @@ def main():
             # For baseline training, use class labels
             y_train = y_class_train
             y_val = y_class_val
-            print("✅ Realistic EV simulation dataset loaded")
+            print("Realistic EV simulation dataset loaded")
         else:
             # Fallback to original hard multitask dataset
             print("Using hard multitask dataset...")
@@ -265,17 +265,17 @@ def main():
             # For baseline training, use class labels
             y_train = y_class_train
             y_val = y_class_val
-            print("✅ Hard multitask dataset loaded")
+            print("Hard multitask dataset loaded")
         
         # Ensure intensity labels are available for multitask training
         if y_int_train is None or y_int_val is None:
-            print("❌ Intensity labels not found for multitask training")
+            print("Intensity labels not found for multitask training")
         
         print(f"Training data shape: {X_train.shape}")
         print(f"Training labels shape: {y_train.shape}")
         
     except FileNotFoundError as e:
-        print(f"❌ Dataset files not found: {e}")
+        print(f"Dataset files not found: {e}")
         print("Please run dataset generation first!")
         return
     
@@ -286,7 +286,7 @@ def main():
     if args.multitask and y_int_train is not None:
         train_multitask_model(X_train, y_train, y_int_train, X_val, y_val, y_int_val, device, config)
     elif args.multitask:
-        print("❌ Multitask training requires intensity labels (y_int_*.npy files)")
+        print("Multitask training requires intensity labels (y_int_*.npy files)")
     
     if args.ga:
         print("Running Genetic Algorithm Optimization...")
@@ -295,7 +295,7 @@ def main():
         run_ga_optimization()
         os.chdir("../../../")
     
-    print("🎉 All training completed!")
+    print("All training completed!")
 
 
 if __name__ == "__main__":

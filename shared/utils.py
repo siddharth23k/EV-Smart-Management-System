@@ -72,15 +72,16 @@ class UnifiedEVPipeline:
                     torch.load(braking_path, map_location=self.device)
                 )
                 self.braking_model.to(self.device).eval()
-                print(f"✅ Braking model loaded from {braking_path}")
+                print(f"Braking model loaded from {braking_path}")
             else:
-                print(f"⚠️  Braking model weights not found at {braking_path}")
+                print(f"Braking model weights not found at {braking_path}")
                 self.braking_model = None
         except Exception as e:
-            print(f"⚠️  Could not load braking model: {e}")
+            print(f"Could not load braking model: {e}")
             self.braking_model = None
 
-        # ── SOC model ─────────────────────────────────────────────────────────
+        # SOC model - - - - - - - - - - - - - - - - - - -
+
         try:
             from modules.soc.models.lstm_cnn_attention_soc import LSTMCNNAttentionSoC
             self.soc_model = LSTMCNNAttentionSoC()
@@ -89,12 +90,12 @@ class UnifiedEVPipeline:
                     torch.load(soc_path, map_location=self.device)
                 )
                 self.soc_model.to(self.device).eval()
-                print(f"✅ SOC model loaded from {soc_path}")
+                print(f"SOC model loaded from {soc_path}")
             else:
-                print(f"⚠️  SOC model weights not found at {soc_path}")
+                print(f"SOC model weights not found at {soc_path}")
                 self.soc_model = None
         except Exception as e:
-            print(f"⚠️  Could not load SOC model: {e}")
+            print(f"Could not load SOC model: {e}")
             self.soc_model = None
 
     def predict_braking(self, driving_window: np.ndarray) -> dict:

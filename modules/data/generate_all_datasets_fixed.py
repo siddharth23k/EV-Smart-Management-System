@@ -70,19 +70,18 @@ def save_braking_datasets():
         save_path="modules/braking/data"
     )
     
-    print("✅ Braking datasets saved!")
+    print("Braking datasets saved!")
 
 def save_soc_datasets():
     print("=== Generating SoC Datasets ===")
     try:
         preprocess_soc()
-        print("✅ SoC datasets saved!")
+        print("SoC datasets saved!")
     except Exception as e:
-        print(f"⚠️  SoC preprocessing failed (NASA CSVs missing?): {e}")
+        print(f"SoC preprocessing failed (NASA CSVs missing?): {e}")
         print("   Synthetic SoC data generation can be added later.")
 
 if __name__ == '__main__':
     save_braking_datasets()
     save_soc_datasets()
-    print("\\n🎉 ALL DATASETS GENERATED! Ready for training.")
-
+    print("\nALL DATASETS GENERATED! Ready for training.")
