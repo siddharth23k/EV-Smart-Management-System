@@ -9,13 +9,21 @@ import os
 import sys
 import torch
 import numpy as np
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Add project root to path
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, project_root)
 
 from shared.train_utils import set_seed, create_data_loaders, EarlyStopper, MetricsTracker
 
 def main():
     print("=== TRAINING ALL MODELS ===")
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if torch.backends.mps.is_available():
+       device = torch.device("mps")  # Mac GPU
+    elif torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu") 
     print(f"Device: {device}")
     
     set_seed(42)  # For reproducibility

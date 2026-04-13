@@ -25,7 +25,15 @@ from modules.soc.models.lstm_soc import LSTMSoC as LSTMSOC
 from modules.soc.models.lstm_cnn_attention_soc import LSTMCNNAttentionSoC, train_soc_model, evaluate_soc_model
 
 
-def train_lstm_baseline(X_train, y_train, X_val, y_val, device="cpu", config=None):
+def train_lstm_baseline(X_train, y_train, X_val, y_val, device, config=None):
+    if device:
+        device = device
+    elif torch.backends.mps.is_available():
+        device = torch.device("mps")  # Mac GPU
+    elif torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu") 
     """Train baseline LSTM model for SOC prediction."""
     print("Training Baseline LSTM SOC Model...")
     

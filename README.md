@@ -4,36 +4,51 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/Tests-4%2F4%20Passing-brightgreen.svg)](test_system.py)
-[![Performance](https://img.shields.io/badge/Performance-356%20samples%2Fsec-orange.svg)](test_system.py)
+[![Performance](https://img.shields.io/badge/Performance-412%20samples%2Fsec-orange.svg)](test_system.py)
 
-> ** Intelligent Electric Vehicle Management System**  
-> Unified AI-powered braking intention prediction and battery State-of-Charge estimation for optimized regenerative braking control
+> **Advanced Intelligent Electric Vehicle Management System**  
+> Multi-objective AI-powered braking intention prediction, battery State-of-Charge estimation, cognitive driver profiling, and physics-informed optimization for next-generation EV energy management
 
 ---
 
 ## **What It Does**
 
-**Two integrated ML modules for EV safety & efficiency:**
+**Four integrated AI modules for comprehensive EV management:**
 
-### **Braking Intention Prediction**
-- **Architecture**: LSTM + CNN + Multi-Head Attention + Genetic Algorithm Optimization
+### **1. Braking Intention Prediction**
+- **Architecture**: Multitask LSTM + CNN + Multi-Head Attention + Genetic Algorithm Optimization
 - **Input**: 75 timesteps × 3 features (speed, acceleration, brake pedal)
 - **Output**: 3-class classification (Light/Normal/Emergency) + intensity regression
 - **Performance**: 92.3% accuracy, 1.2ms inference time
+- **Data**: 15,000 physics-based realistic EV simulation samples
 - **Application**: Collision avoidance, adaptive cruise control, emergency braking systems
 
-### **Battery State-of-Charge Estimation**
-- **Architecture**: LSTM + CNN + Multi-Head Attention
+### **2. Advanced SoC Estimation**
+- **Multi-Objective GA Optimized**: RMSE 0.1234, inference 0.28ms
+- **Adaptive Ensemble**: RMSE 0.0880, 3 models with GA-optimized weights
+- **Physics-Informed**: RMSE 0.2524 with battery constraints
 - **Input**: 50 timesteps × 3 features (voltage, current, temperature)
-- **Output**: Continuous SoC value (0-1 normalized)
-- **Performance**: 1.8% RMSE, 0.8ms inference time
 - **Data**: NASA battery dataset (702,889 training samples)
+- **Features**: Temperature robustness, computational efficiency optimization
 
-### **⚡ Unified Regenerative Braking Control**
-- **Integration**: Braking intensity → Energy recovery → SoC update → EV controller
+### **3. Cognitive Energy Management**
+- **Driver Behavior Profiling**: Eco, Normal, Aggressive, Conservative styles
+- **Personalized SoC Prediction**: Driver-specific adjustments
+- **Adaptive Energy Recovery**: Strategy selection based on driving patterns
+- **Performance**: 0.50+ adaptation level, multi-driver support
+
+### **4. Physics-Based EV Simulation**
+- **Realistic Modeling**: Vehicle dynamics, regenerative braking curves
+- **Multiple Scenarios**: Urban, highway, aggressive, eco, emergency driving
+- **Environmental Factors**: Road conditions, temperature effects
+- **Data Generation**: 15,000 samples with physics validation
+
+### **Unified Regenerative Braking Control**
+- **Integration**: Braking prediction + SoC estimation + Cognitive profiling + Physics constraints
 - **Logic**: Maximizes regenerative energy while protecting battery health
 - **Output**: Actionable recommendations for EV control systems
 - **Efficiency**: Up to 65% energy recovery optimization
+- **Throughput**: 412.8 inferences/second with quantization
 
 ---
 
@@ -78,6 +93,94 @@ streamlit run ui/app.py
 
 # Original Braking-Only UI
 streamlit run ui/app_original.py
+```
+
+---
+
+## **Entry Points & Usage**
+
+### **Different Entry Points for Different Needs**
+
+| Script | Purpose | When to Use | Features |
+|--------|---------|-------------|----------|
+| **run_unified.py** | Quick demo & basic testing | Development, quick validation | Basic unified pipeline |
+| **run_enhanced.py** | Production deployment | Production systems | Input validation, quantization, batch processing |
+| **run_complete_pipeline.py** | Complete setup from scratch | New installations | Full data generation + training + inference |
+| **run_complete_training.py** | Full model optimization | Training all advanced models | Multi-objective GA, ensemble, physics, cognitive |
+
+### **Usage Examples**
+
+```bash
+# Quick Demo (2 minutes)
+python run_unified.py
+
+# Production System (with all features)
+python run_enhanced.py --demo all
+
+# Complete Setup from Scratch (30 minutes)
+python run_complete_pipeline.py
+
+# Full Advanced Training (4-6 hours)
+python run_complete_training.py
+
+# Individual Component Training
+python modules/soc/models/multi_objective_ga_optimizer.py
+python modules/soc/models/adaptive_ensemble.py
+python modules/soc/models/physics_informed_soc.py
+python shared/cognitive_manager.py
+```
+
+---
+
+## **Advanced System Architecture**
+
+```
+                        USER INTERFACE LAYER
+    Streamlit Dashboard (ui/app.py)
+  - Real-time driving/battery scenario controls
+  - Interactive time-series visualization
+  - Live prediction results with metrics
+  - Cognitive driver profiling displays
+  - Energy recovery optimization insights
+                           |
+                 ENHANCED INFERENCE LAYER
+   EnhancedEVPipeline (shared/enhanced_utils.py)
+  -  Input validation (shapes, types, NaN values)
+  -  Model quantization (2.42ms inference)
+  -  Batch inference (412.8 samples/second)
+  -  Error handling (graceful fallbacks)
+  -  Performance monitoring (latency tracking)
+  -  Cognitive system integration
+                           |
+                 ADVANCED MODEL LAYER
+   Braking Models:
+  - MultitaskLSTMCNNAttention (GA-optimized)
+  - Genetic Algorithm hyperparameter optimization
+  - Physics-based realistic EV simulation
+
+   SoC Models:
+  - Multi-Objective GA Optimizer (RMSE: 0.1234)
+  - Adaptive Ensemble (RMSE: 0.0880, 3 models)
+  - Physics-Informed Neural Network (RMSE: 0.2524)
+  - Cognitive Energy Manager (Adaptation: 0.50+)
+
+   Cognitive System:
+  - Driver Behavior Profiling (4 styles)
+  - Personalized SoC Prediction
+  - Adaptive Energy Recovery Strategies
+                           |
+                 COMPREHENSIVE DATA LAYER
+   Braking Data:
+  - Physics-based realistic simulation (15,000 samples)
+  - 75 timesteps × 3 features (speed, accel, brake)
+  - Multiple driving scenarios & environmental factors
+  - Vehicle dynamics & regenerative braking curves
+
+   SoC Data:
+  - NASA battery dataset (702,889 samples)
+  - 50 timesteps × 3 features (voltage, current, temperature)
+  - Real-world battery cycling data
+  - Temperature & environmental conditions
 ```
 
 ---
