@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Enhanced EV Smart Management System - Production Ready
-Features: Input validation, error handling, batch inference, quantization, config system
+Enhanced EV Smart Management System
 """
 
 import os
@@ -11,7 +10,6 @@ import argparse
 import numpy as np
 from pathlib import Path
 
-# Add project root to path for absolute imports
 project_root = Path(__file__).parent
 sys.path.append(str(project_root))
 
@@ -19,7 +17,6 @@ from shared.config import get_config
 from shared.enhanced_utils import EnhancedEVPipeline
 
 def print_header():
-    """Print system header."""
     print("=" * 70)
     print("🚀 ENHANCED EV SMART MANAGEMENT SYSTEM")
     print("=" * 70)
@@ -27,7 +24,6 @@ def print_header():
     print("=" * 70)
 
 def print_model_info(pipeline):
-    """Print model loading information."""
     info = pipeline.get_model_info()
     print("\n📊 MODEL STATUS:")
     print(f"  Braking Model: {'✅ Loaded' if info['braking_model_loaded'] else '❌ Not Found'}")
@@ -37,25 +33,21 @@ def print_model_info(pipeline):
     print(f"  Device: {info['device']}")
 
 def run_single_inference_demo(pipeline):
-    """Run single inference demonstration."""
     print("\n" + "=" * 70)
     print("🔬 SINGLE INFERENCE DEMONSTRATION")
     print("=" * 70)
     
     try:
-        # Generate sample inputs
         driving_window, battery_window = pipeline.generate_sample_inputs(1)
         current_soc = 0.65
         
         print(f"Input shapes: driving={driving_window.shape}, battery={battery_window.shape}")
         print(f"Current SoC: {current_soc:.2f}")
         
-        # Run inference
         start_time = time.time()
         result = pipeline.run(driving_window, battery_window, current_soc)
         end_time = time.time()
         
-        # Print results
         print(f"\n⚡ Inference completed in {(end_time - start_time)*1000:.2f}ms")
         print("\n📋 RESULTS:")
         print(f"  Braking: {result['braking']['class']} (confidence: {result['braking']['confidence']:.2f})")
@@ -71,13 +63,11 @@ def run_single_inference_demo(pipeline):
         return False
 
 def run_batch_inference_demo(pipeline):
-    """Run batch inference demonstration."""
     print("\n" + "=" * 70)
     print("📦 BATCH INFERENCE DEMONSTRATION")
     print("=" * 70)
     
     try:
-        # Generate batch inputs
         batch_size = 5
         driving_windows, battery_windows = pipeline.generate_sample_inputs(batch_size)
         current_socs = [0.3, 0.5, 0.7, 0.9, 0.2]
@@ -85,12 +75,10 @@ def run_batch_inference_demo(pipeline):
         print(f"Batch size: {batch_size}")
         print(f"Input shapes: driving={len(driving_windows)} samples, battery={len(battery_windows)} samples")
         
-        # Run batch inference
         start_time = time.time()
         results = pipeline.run(driving_windows, battery_windows, current_socs)
         end_time = time.time()
         
-        # Print results
         total_time = end_time - start_time
         avg_time = total_time / batch_size
         print(f"\n⚡ Batch inference completed in {total_time*1000:.2f}ms")
@@ -110,7 +98,6 @@ def run_batch_inference_demo(pipeline):
         return False
 
 def run_validation_demo(pipeline):
-    """Run input validation demonstration."""
     print("\n" + "=" * 70)
     print("🛡️  INPUT VALIDATION DEMONSTRATION")
     print("=" * 70)
@@ -139,22 +126,18 @@ def run_validation_demo(pipeline):
             print(f"   ❌ Failed: {str(e)[:80]}...")
 
 def run_performance_benchmark(pipeline):
-    """Run performance benchmarking."""
     print("\n" + "=" * 70)
     print("🏎️  PERFORMANCE BENCHMARK")
     print("=" * 70)
     
     try:
-        # Generate test data
         num_samples = 100
         driving_windows, battery_windows = pipeline.generate_sample_inputs(num_samples)
         current_socs = [0.5] * num_samples
         
-        # Warm up
         for _ in range(10):
             pipeline.run(driving_windows[0], battery_windows[0], current_socs[0])
         
-        # Benchmark
         times = []
         for i in range(num_samples):
             start_time = time.time()
@@ -162,7 +145,6 @@ def run_performance_benchmark(pipeline):
             end_time = time.time()
             times.append(end_time - start_time)
         
-        # Statistics
         avg_time = sum(times) / len(times) * 1000
         min_time = min(times) * 1000
         max_time = max(times) * 1000
@@ -181,7 +163,6 @@ def run_performance_benchmark(pipeline):
         return False
 
 def main():
-    """Main enhanced system demonstration."""
     parser = argparse.ArgumentParser(description="Enhanced EV Smart Management System")
     parser.add_argument("--config", help="Path to configuration file")
     parser.add_argument("--demo", choices=["single", "batch", "validation", "benchmark", "all"], 
@@ -191,24 +172,19 @@ def main():
     
     args = parser.parse_args()
     
-    # Print header
     print_header()
     
     try:
-        # Initialize enhanced pipeline
         print("🔧 Initializing Enhanced EV Pipeline...")
         pipeline = EnhancedEVPipeline(args.config)
         
-        # Override device if specified
         if args.device != "auto":
             import torch
             device = torch.device(args.device)
             print(f"📱 Using specified device: {device}")
         
-        # Print model info
         print_model_info(pipeline)
         
-        # Run demos based on selection
         success_count = 0
         total_count = 0
         
@@ -232,7 +208,6 @@ def main():
             if run_performance_benchmark(pipeline):
                 success_count += 1
         
-        # Summary
         print("\n" + "=" * 70)
         print("📊 SUMMARY")
         print("=" * 70)

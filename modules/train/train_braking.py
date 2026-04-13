@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Production training for Braking Intention Models.
-Consolidates baseline, multitask, and GA-optimized models.
 """
 
 import argparse
@@ -14,7 +13,6 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import accuracy_score, f1_score
 from pathlib import Path
 
-# Add project root to path for absolute imports
 project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 
@@ -26,13 +24,11 @@ from modules.braking.models.genetic_algorithm_optimizer import GeneticAlgorithmO
 
 
 def train_baseline_model(X_train, y_train, X_val, y_val, device="cpu", config=None):
-    """Train baseline LSTM-CNN-Attention model."""
     print("Training Baseline LSTM-CNN-Attention Model...")
     
     model = LSTMCNNAttention()
     model = model.to(device)
     
-    # Convert to tensors
     train_dataset = TensorDataset(
         torch.tensor(X_train, dtype=torch.float32),
         torch.tensor(y_train, dtype=torch.long)
@@ -42,7 +38,6 @@ def train_baseline_model(X_train, y_train, X_val, y_val, device="cpu", config=No
         torch.tensor(y_val, dtype=torch.long)
     )
     
-    # Get training config
     training_config = config.get_training_config() if config else {}
     batch_size = training_config.get('batch_size', 32)
     learning_rate = training_config.get('learning_rate', 0.001)
@@ -72,7 +67,6 @@ def train_baseline_model(X_train, y_train, X_val, y_val, device="cpu", config=No
             
             train_loss += loss.item()
         
-        # Validation
         model.eval()
         val_loss = 0
         correct = 0

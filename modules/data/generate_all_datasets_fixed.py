@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 """
 Generate ALL datasets needed for EV Smart Management System.
-Braking: baseline + hard + multitask HARD
-SoC: NASA battery data preprocessing
 """
 
 import os
 import sys
 import numpy as np
 
-# Add project root to path
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(project_root)
 
@@ -25,7 +22,6 @@ def ensure_dir(path):
 def save_braking_datasets():
     print("=== Generating Braking Datasets ===")
     
-    # 1. Baseline dataset
     print("1. Baseline dataset...")
     X, y = generate_dataset()
     X_train, y_train, X_val, y_val, X_test, y_test = split_dataset(X, y)
@@ -36,17 +32,13 @@ def save_braking_datasets():
     np.save('modules/braking/data/X_test.npy', X_test)
     np.save('modules/braking/data/y_test.npy', y_test)
     
-    # 2. Hard dataset  
     print("2. Hard braking dataset...")
-    # generate_hard() saves files directly, so we just call it
     generate_hard()
     print("   Hard braking dataset saved")
     
-    # 3. Hard multitask dataset (for production model)
     print("3. Hard multitask dataset (GA-optimized)...")
     X_mtl, y_class_mtl, y_int_mtl = generate_hard_mtl()
     
-    # Shuffle and split the data
     idx = np.random.permutation(len(X_mtl))
     X_mtl = X_mtl[idx]
     y_class_mtl = y_class_mtl[idx]
