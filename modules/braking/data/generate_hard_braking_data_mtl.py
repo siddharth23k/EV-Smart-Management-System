@@ -3,7 +3,6 @@ import numpy as np
 
 def generate_hard_sample_mtl(seq_len=75):
 
-    # Initial conditions
     speed = np.random.uniform(30, 90)
     accel = 0.0
     brake = 0.0

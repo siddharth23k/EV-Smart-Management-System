@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Production training for Braking Intention Models.
 """

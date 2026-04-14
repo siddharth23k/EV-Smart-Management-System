@@ -144,7 +144,7 @@ def train_lstm_baseline(X_train, y_train, X_val, y_val, device, config=None):
                 print(f"Early stopping at epoch {epoch}")
                 break
     
-    print("✅ Baseline LSTM SOC model training complete!")
+    print("Baseline LSTM SOC model training complete!")
     return model
 
 
@@ -191,7 +191,7 @@ def main():
         print(f"Test labels shape: {y_test.shape}")
         
     except FileNotFoundError as e:
-        print(f"❌ Dataset files not found: {e}")
+        print(f"Dataset files not found: {e}")
         print("Please run dataset generation first!")
         return
     
@@ -276,7 +276,7 @@ def main():
         # Evaluate CNN model
         cnn_results = evaluate_soc_model(cnn_model, X_test, y_test, device=device)
     
-    print("🎉 All SOC training completed!")
+    print("All SOC training completed!")
 
 
 if __name__ == "__main__":

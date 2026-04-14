@@ -1,9 +1,3 @@
-"""
-Realistic EV Braking Simulation with Physics-Based Modeling
-Generates driving data matching model input requirements (75 timesteps, 3 features)
-Features: [speed, acceleration, brake_pedal]
-"""
-
 import numpy as np
 import json
 from typing import Tuple, Dict, List, Optional
@@ -12,7 +6,7 @@ from enum import Enum
 
 
 class DrivingScenario(Enum):
-    """Different driving scenarios for simulation."""
+    # Different driving scenarios for simulation
     URBAN = "urban"
     HIGHWAY = "highway"
     AGGRESSIVE = "aggressive"
@@ -22,7 +16,7 @@ class DrivingScenario(Enum):
 
 @dataclass
 class VehicleParameters:
-    """EV vehicle physical parameters."""
+    # EV vehicle physical parameters
     mass: float = 1800.0  # kg
     max_regen_power: float = 60000.0  # W (60kW)
     max_mechanical_brake: float = 8000.0  # N
@@ -54,7 +48,7 @@ class VehicleParameters:
 
 @dataclass
 class RoadConditions:
-    """Road and environmental conditions."""
+    # Road and environmental conditions
     slope: float = 0.0  # degrees (positive = uphill)
     friction_coefficient: float = 0.8  # Dry asphalt
     wind_speed: float = 0.0  # m/s (headwind positive)
@@ -62,7 +56,7 @@ class RoadConditions:
 
 
 class RealisticEVSimulator:
-    """Physics-based EV braking simulator."""
+    # Physics-based EV braking simulator
     
     def __init__(self, 
                  vehicle_params: Optional[VehicleParameters] = None,
@@ -73,7 +67,7 @@ class RealisticEVSimulator:
         self.seq_len = 75  # 7.5 seconds of data
         
     def _get_regen_efficiency(self, speed: float) -> float:
-        """Get regenerative braking efficiency at given speed."""
+        #Get regenerative braking efficiency at given speed.#
         speeds = sorted(self.vehicle.regen_efficiency_curve.keys())
         
         if speed <= speeds[0]:
@@ -91,7 +85,7 @@ class RealisticEVSimulator:
         return 0.65  # Default efficiency
     
     def _calculate_resistive_forces(self, speed: float) -> float:
-        """Calculate total resistive force acting on vehicle."""
+        #Calculate total resistive force acting on vehicle.#
         # Aerodynamic drag: F = 0.5 * ρ * Cd * A * v^2
         relative_wind_speed = speed + self.road.wind_speed
         aero_drag = 0.5 * self.road.air_density * self.vehicle.drag_coefficient * \
@@ -107,7 +101,7 @@ class RealisticEVSimulator:
         return aero_drag + rolling_resistance + gravity_component
     
     def _calculate_braking_force(self, brake_pedal: float, speed: float) -> Tuple[float, float]:
-        """Calculate regenerative and mechanical braking forces."""
+        #Calculate regenerative and mechanical braking forces.#
         # Total desired braking force based on pedal position
         max_total_force = self.vehicle.max_mechanical_brake + \
                          (self.vehicle.max_regen_power / max(speed, 0.1))
@@ -127,7 +121,7 @@ class RealisticEVSimulator:
     
     def _simulate_driver_behavior(self, scenario: DrivingScenario, 
                                  initial_speed: float) -> Tuple[float, float, float]:
-        """Generate realistic driver behavior patterns."""
+        # Generate realistic driver behavior patterns
         if scenario == DrivingScenario.URBAN:
             # Urban driving: frequent light to moderate braking
             target_brake = np.random.beta(2, 5) * 0.6
@@ -163,7 +157,7 @@ class RealisticEVSimulator:
                                  scenario: Optional[DrivingScenario] = None,
                                  initial_speed: Optional[float] = None,
                                  road_slope: Optional[float] = None) -> Tuple[np.ndarray, int, float]:
-        """Generate a single realistic braking sample."""
+        #Generate a single realistic braking sample.#
         # Randomize parameters if not provided
         if scenario is None:
             scenario = np.random.choice(list(DrivingScenario))
@@ -232,7 +226,7 @@ class RealisticEVSimulator:
     def generate_dataset(self, 
                         n_samples: int = 15000,
                         scenario_distribution: Optional[Dict[str, float]] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Generate complete dataset with scenario distribution."""
+        #Generate complete dataset with scenario distribution.#
         if scenario_distribution is None:
             # Realistic distribution of driving scenarios
             scenario_distribution = {
@@ -275,7 +269,7 @@ class RealisticEVSimulator:
         return np.array(X), np.array(y_class), np.array(y_intensity)
     
     def save_simulation_metadata(self, filepath: str):
-        """Save simulation parameters for reproducibility."""
+        #Save simulation parameters for reproducibility.#
         metadata = {
             "vehicle_parameters": {
                 "mass": self.vehicle.mass,
@@ -306,7 +300,7 @@ class RealisticEVSimulator:
 
 def generate_realistic_dataset(n_samples: int = 15000, 
                               save_path: str = "modules/braking/data") -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Main function to generate realistic EV braking dataset."""
+    #Main function to generate realistic EV braking dataset.#
     print("=== Generating Realistic EV Braking Dataset ===")
     
     # Initialize simulator
@@ -350,31 +344,31 @@ def generate_realistic_dataset(n_samples: int = 15000,
     simulator.save_simulation_metadata(f"{save_path}/realistic_simulation_metadata.json")
     
     # Print statistics
-    print(f"\n=== Dataset Statistics ===")
+    print(f"\n Dataset Statistics ")
     print(f"Total samples: {n}")
     print(f"Training: {n_train} ({n_train/n*100:.1f}%)")
     print(f"Validation: {n_val-n_train} ({(n_val-n_train)/n*100:.1f}%)")
     print(f"Test: {n-n_val} ({(n-n_val)/n*100:.1f}%)")
     
-    print(f"\n=== Class Distribution ===")
+    print(f"\n Class Distribution ")
     class_names = ["Light Braking", "Normal Braking", "Emergency Braking"]
     for i, class_name in enumerate(class_names):
         count = np.sum(y_class_train == i)
         print(f"{class_name}: {count} ({count/len(y_class_train)*100:.1f}%)")
     
-    print(f"\n=== Intensity Statistics ===")
+    print(f"\nIntensity Statistics")
     print(f"Mean: {np.mean(y_int_train):.3f}")
     print(f"Std: {np.std(y_int_train):.3f}")
     print(f"Min: {np.min(y_int_train):.3f}")
     print(f"Max: {np.max(y_int_train):.3f}")
     
-    print(f"\n=== Speed Statistics (m/s) ===")
+    print(f"\nSpeed Statistics (m/s)")
     print(f"Mean: {np.mean(X_train[:, -1, 0]):.2f}")
     print(f"Std: {np.std(X_train[:, -1, 0]):.2f}")
     print(f"Min: {np.min(X_train[:, -1, 0]):.2f}")
     print(f"Max: {np.max(X_train[:, -1, 0]):.2f}")
     
-    print(f"\n✅ Realistic EV braking dataset saved to {save_path}")
+    print(f"\nRealistic EV braking dataset saved to {save_path}")
     
     return X, y_class, y_intensity
 
@@ -389,4 +383,4 @@ if __name__ == "__main__":
         save_path="modules/braking/data"
     )
     
-    print("\n🎉 Realistic EV braking simulation completed!")
+    print("\nRealistic EV braking simulation completed!")

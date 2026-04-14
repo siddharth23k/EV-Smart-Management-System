@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-"""
-Generate ALL datasets needed for EV Smart Management System.
-"""
-
 import os
 import sys
 import numpy as np

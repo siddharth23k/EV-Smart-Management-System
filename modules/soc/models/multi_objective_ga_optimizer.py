@@ -554,7 +554,7 @@ def run_multi_objective_soc_ga():
     
     results = ga.run()
 
-    print(f"\n=== MULTI-OBJECTIVE GA OPTIMIZATION RESULTS ===")
+    print(f"\n MULTI-OBJECTIVE GA OPTIMIZATION RESULTS")
     
     # Best combined (primary result)
     best_combined = results['best_combined']
@@ -628,7 +628,7 @@ def run_multi_objective_soc_ga():
     os.makedirs("assets/img", exist_ok=True)
     plt.savefig("assets/img/multi_objective_ga_fitness.png", dpi=150)
     plt.close()
-    print("✅ Fitness plots saved: assets/img/multi_objective_ga_fitness.png")
+    print("Fitness plots saved: assets/img/multi_objective_ga_fitness.png")
 
     return results
 

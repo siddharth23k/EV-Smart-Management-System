@@ -1,5 +1,3 @@
-#!/bin/bash
-# Phase 2: Train ALL models (one command)
 set -e
 
 echo "🚀 Starting full training pipeline..."
@@ -18,5 +16,5 @@ echo "3/3 Running GA optimization..."
 PYTHONPATH=.. python ../braking/models/genetic_algorithm_optimizer.py
 PYTHONPATH=.. python ../soc/models/soc_ga_optimizer.py
 
-echo "✅ ALL MODELS TRAINED!"
+echo "ALL MODELS TRAINED!"
 echo "Run: cd ../../ && python run_unified.py"
