@@ -105,7 +105,7 @@ class GeneticAlgorithmOptimizer:
         )
 
     def _encode(self, hp: HyperParams) -> Tuple:
-        """Immutable key for caching."""
+        #Immutable key for caching.#
         d = hp.as_dict()
         return tuple(sorted(d.items()))
 

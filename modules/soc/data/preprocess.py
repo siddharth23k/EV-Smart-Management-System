@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# ── Config ────────────────────────────────────────────────────────────────────
+# ── Config
 DATA_DIR    = os.path.join(os.path.dirname(__file__))          # modules/soc/data/
 OUTPUT_DIR  = os.path.join(os.path.dirname(__file__))
 WINDOW_SIZE = 50       # timesteps per sample (sliding window)
@@ -18,11 +18,8 @@ STEP_SIZE   = 10       # stride between windows
 CAPACITY_AH = 2.0      # nominal battery capacity in Ah (NASA 18650 cells)
 MIN_ROWS    = WINDOW_SIZE + 5   # skip files that are too short
 
-# Features used as model input
 FEATURE_COLS = ["Voltage_measured", "Current_measured", "Temperature_measured"]
-
-
-# ── SOC via Coulomb Counting ──────────────────────────────────────────────────
+# SOC via Coulomb Counting
 def compute_soc(current: np.ndarray, time: np.ndarray,
                 capacity_ah: float = CAPACITY_AH) -> np.ndarray:
     """
@@ -52,7 +49,6 @@ def compute_soc(current: np.ndarray, time: np.ndarray,
     return np.clip(soc, 0.0, 1.0)
 
 
-# ── Sliding Window ────────────────────────────────────────────────────────────
 def sliding_windows(features: np.ndarray, soc: np.ndarray,
                     window: int, step: int):
     """
@@ -68,7 +64,6 @@ def sliding_windows(features: np.ndarray, soc: np.ndarray,
     return np.array(X, dtype=np.float32), np.array(y, dtype=np.float32)
 
 
-# ── Main ─────────────────────────────────────────────────────────────────────
 def main():
     csv_files = sorted([
         f for f in os.listdir(DATA_DIR)
@@ -131,7 +126,6 @@ def main():
     print(f"X shape       : {X.shape}  (samples, timesteps, features)")
     print(f"y shape       : {y.shape}  (SOC values in [0,1])")
 
-    # ── Train / Val / Test split  70 / 15 / 15 ───────────────────────────────
     X_train, X_temp, y_train, y_temp = train_test_split(
         X, y, test_size=0.30, random_state=42, shuffle=True
     )
@@ -144,7 +138,6 @@ def main():
     print(f"  Val   : {len(X_val)}")
     print(f"  Test  : {len(X_test)}")
 
-    # ── Save ──────────────────────────────────────────────────────────────────
     np.save(os.path.join(OUTPUT_DIR, "X_train_soc.npy"), X_train)
     np.save(os.path.join(OUTPUT_DIR, "X_val_soc.npy"),   X_val)
     np.save(os.path.join(OUTPUT_DIR, "X_test_soc.npy"),  X_test)

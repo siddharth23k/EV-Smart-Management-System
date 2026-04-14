@@ -542,7 +542,7 @@ def train_adaptive_ensemble():
     # Final evaluation
     final_results = ensemble.evaluate_ensemble(X_val, y_val)
     
-    print(f"\n=== ADAPTIVE ENSEMBLE RESULTS ===")
+    print(f"\nADAPTIVE ENSEMBLE RESULTS:")
     print(f"Final Ensemble RMSE: {final_results['ensemble_rmse']:.4f}")
     print(f"Individual Model RMSEs:")
     print(f"  LSTM-CNN: {final_results['lstm_rmse']:.4f}")
@@ -579,7 +579,7 @@ def train_adaptive_ensemble():
     with open("modules/soc/models/adaptive_ensemble_results.json", "w") as f:
         json.dump(results, f, indent=4)
     
-    print("✅ Adaptive ensemble training completed!")
+    print("Adaptive ensemble training completed!")
     return ensemble, results
 
 

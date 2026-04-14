@@ -41,7 +41,7 @@ class UnifiedEVPipeline:
         self._load_models(braking_model_path, soc_model_path, braking_hp_path)
 
     def _load_models(self, braking_path, soc_path, hp_path):
-        # ── Braking model ─────────────────────────────────────────────────────
+        # ── Braking model
         try:
             from modules.braking.models.multitask_lstm_cnn_attention import (
                 MultitaskLSTMCNNAttention,
@@ -80,7 +80,7 @@ class UnifiedEVPipeline:
             print(f"Could not load braking model: {e}")
             self.braking_model = None
 
-        # SOC model - - - - - - - - - - - - - - - - - - -
+        # SOC model
 
         try:
             from modules.soc.models.lstm_cnn_attention_soc import LSTMCNNAttentionSoC

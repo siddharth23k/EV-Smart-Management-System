@@ -48,7 +48,7 @@ class LSTMCNNAttention(nn.Module):
 
 
 class AE_LSTMCNNAttention(nn.Module):
-    """CNN+LSTM+Attention classifier that uses a pretrained encoder as the first stage."""
+    #CNN+LSTM+Attention classifier that uses a pretrained encoder as the first stage.#
 
     def __init__(self, latent_dim=4, num_classes=3):
         super().__init__()
