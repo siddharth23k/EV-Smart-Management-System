@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-Production training for Battery SOC Prediction.
-Consolidates LSTM baseline and LSTM+CNN+Attention models.
-"""
-
 import argparse
 import os
 import sys

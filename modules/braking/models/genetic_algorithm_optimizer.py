@@ -285,14 +285,14 @@ class GeneticAlgorithmOptimizer:
 def load_multitask_hard_datasets(
     data_dir: str = "data",
 ) -> Tuple[Dataset, Dataset]:
-    X_train = np.load(os.path.join(data_dir, "X_train_hard_mtl.npy"))
-    X_val = np.load(os.path.join(data_dir, "X_val_hard_mtl.npy"))
+    X_train = np.load(os.path.join(data_dir, "X_train_realistic.npy"))
+    X_val = np.load(os.path.join(data_dir, "X_val_realistic.npy"))
 
-    y_class_train = np.load(os.path.join(data_dir, "y_class_train_hard_mtl.npy"))
-    y_class_val = np.load(os.path.join(data_dir, "y_class_val_hard_mtl.npy"))
+    y_class_train = np.load(os.path.join(data_dir, "y_class_train_realistic.npy"))
+    y_class_val = np.load(os.path.join(data_dir, "y_class_val_realistic.npy"))
 
-    y_int_train = np.load(os.path.join(data_dir, "y_int_train_hard_mtl.npy"))
-    y_int_val = np.load(os.path.join(data_dir, "y_int_val_hard_mtl.npy"))
+    y_int_train = np.load(os.path.join(data_dir, "y_int_train_realistic.npy"))
+    y_int_val = np.load(os.path.join(data_dir, "y_int_val_realistic.npy"))
 
     train_ds = MultitaskHardDataset(X_train, y_class_train, y_int_train)
     val_ds = MultitaskHardDataset(X_val, y_class_val, y_int_val)

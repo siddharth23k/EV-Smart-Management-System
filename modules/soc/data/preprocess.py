@@ -1,16 +1,13 @@
-"""
-modules/soc/data/preprocess.py
 
-Loads raw NASA battery cycle CSVs, computes SOC labels via Coulomb Counting,
-creates sliding window sequences, and saves train/val/test .npy files.
-"""
+# Loads raw NASA battery cycle CSVs, computes SOC labels via Coulomb Counting,
+# creates sliding window sequences, and saves train/val/test .npy files.
+
 
 import os
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# ── Config
 DATA_DIR    = os.path.join(os.path.dirname(__file__))          # modules/soc/data/
 OUTPUT_DIR  = os.path.join(os.path.dirname(__file__))
 WINDOW_SIZE = 50       # timesteps per sample (sliding window)

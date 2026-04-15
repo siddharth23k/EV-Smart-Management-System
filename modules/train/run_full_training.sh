@@ -1,6 +1,6 @@
 set -e
 
-echo "🚀 Starting full training pipeline..."
+echo "Starting full training pipeline..."
 echo "Venv: $(python -c 'import sys; print(sys.executable)')"
 echo "CUDA: $(python -c 'import torch; print(torch.cuda.is_available())')"
 

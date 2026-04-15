@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-"""
-Phase 1 Step 2: Train ALL models and save .pth weights.
-Braking: baseline, hard, multitask-GA
-SoC: LSTM baseline, LSTM+CNN+Attention
-"""
-
 import os
 import sys
 import torch

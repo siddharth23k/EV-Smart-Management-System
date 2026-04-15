@@ -1,8 +1,4 @@
 
-"""
-Production training for Braking Intention Models.
-"""
-
 import argparse
 import os
 import sys
