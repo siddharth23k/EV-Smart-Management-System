@@ -1,9 +1,7 @@
-"""
-modules/soc/models/soc_ga_optimizer.py
-GA hyperparameter optimization for SOC estimation.
-Reuses the same GA framework as the braking module — shared soft computing approach.
-Fitness = validation RMSE (lower is better, so we negate it)
-"""
+
+# GA hyperparameter optimization for SOC estimation.
+# Fitness = validation RMSE (lower is better, so we negate it)
+
 
 import json
 import math

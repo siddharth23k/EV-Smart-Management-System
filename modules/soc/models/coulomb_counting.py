@@ -1,8 +1,5 @@
-"""
-modules/soc/models/coulomb_counting.py
-Traditional Coulomb Counting baseline for SOC estimation.
-Shows why deep learning is needed — CC drifts without recalibration.
-"""
+
+# Traditional Coulomb Counting baseline for SOC estimation.
 
 import os
 import numpy as np

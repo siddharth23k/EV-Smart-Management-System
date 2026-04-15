@@ -1,7 +1,6 @@
-"""
-Multi-Objective Genetic Algorithm Optimizer for SoC Estimation
-Optimizes for multiple objectives: RMSE, computational efficiency, and temperature robustness
-"""
+
+# Multi-Objective Genetic Algorithm Optimizer for SoC Estimation
+# Optimizes for multiple objectives: RMSE, computational efficiency, and temperature robustness
 
 import json
 import math

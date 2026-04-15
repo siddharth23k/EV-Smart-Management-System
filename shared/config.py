@@ -1,6 +1,5 @@
-"""
-Configuration management for EV Smart Management System.
-"""
+
+# Configuration management for EV Smart Management System.
 
 import os
 import yaml

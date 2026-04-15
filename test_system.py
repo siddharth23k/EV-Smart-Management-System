@@ -1,8 +1,5 @@
-#!/usr/bin/env python3
-"""
-Comprehensive testing pipeline for EV Smart Management System.
-Tests data generation, model training, and unified inference.
-"""
+
+# Tests data generation, model training, and unified inference.
 
 import os
 import sys

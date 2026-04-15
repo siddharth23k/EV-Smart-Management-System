@@ -1,8 +1,6 @@
-"""
-shared/utils.py
-Unified EV Smart Management System pipeline.
-Connects braking intention module + SOC estimation module.
-"""
+
+# Connects braking intention module + SOC estimation module.
+
 
 import os
 import json
@@ -192,7 +190,6 @@ class UnifiedEVPipeline:
 def _determine_action(class_id: int, soc: float) -> str:
     """
     Simple rule-based system action based on braking class and SOC.
-    This is the integration layer — braking intent informs EV controller.
     """
     if class_id == 2:   # Emergency
         return "ADAS_ALERT: Trigger emergency braking assist + maximum regen"

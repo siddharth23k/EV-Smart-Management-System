@@ -1,7 +1,5 @@
-"""
-Cognitive-Driven Energy Management System
-Implements driver behavior profiling, personalized SoC prediction, and adaptive energy recovery
-"""
+
+# Implements driver behavior profiling, personalized SoC prediction, and adaptive energy recovery
 
 import json
 import os

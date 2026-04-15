@@ -1,7 +1,6 @@
-"""
-Fast Adaptive Ensemble Learning for SoC Estimation
-Uses pre-trained models and simple weight optimization
-"""
+
+# Fast Adaptive Ensemble Learning for SoC Estimation
+
 
 import json
 import os

@@ -1,7 +1,5 @@
-"""
-modules/soc/models/lstm_soc.py
-Base paper reimplementation: Plain LSTM → SOC regression with early stopping
-"""
+
+# Base paper reimplementation: Plain LSTM → SOC regression with early stopping
 
 import os
 import numpy as np

@@ -1,9 +1,6 @@
-"""
-modules/soc/models/lstm_cnn_attention_soc.py
-Your improvement over the base paper:
-LSTM + CNN + Attention → SOC regression
-Same architecture as braking module, adapted for SOC estimation
-"""
+# improvement over the base paper: LSTM + CNN + Attention → SOC regression
+# Same architecture as braking module, adapted for SOC estimation
+
 
 import os
 import numpy as np

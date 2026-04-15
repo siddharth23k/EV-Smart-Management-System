@@ -1,7 +1,6 @@
-"""
-Enhanced Unified EV Smart Management System with validation, error handling, 
-batch inference, and quantization support.
-"""
+
+# Enhanced Unified EV Smart Management System with validation, error handling, batch inference, and quantization support.
+
 
 import os
 import sys

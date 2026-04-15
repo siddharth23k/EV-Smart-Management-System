@@ -1,10 +1,4 @@
-#!/usr/bin/env python3
-"""
-run_unified.py  (project root)
-Entry point for the Unified EV Smart Management System.
-Runs both modules together and shows integrated output.
-Uses exact configuration parameters from config system.
-"""
+#Runs both modules together and shows integrated output.
 
 import os
 import sys

@@ -1,7 +1,7 @@
-"""
-Physics-Informed SoC Estimation with Battery Constraints
-Integrates State of Health (SoH), thermal dynamics, and electrochemical constraints
-"""
+
+# Physics-Informed SoC Estimation with Battery Constraints
+# Integrates State of Health (SoH), thermal dynamics, and electrochemical constraints
+
 
 import json
 import os
