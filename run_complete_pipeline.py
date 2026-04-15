@@ -10,7 +10,7 @@ project_root = Path(__file__).parent
 sys.path.append(str(project_root))
 
 def check_data_availability():
-    print("🔍 CHECKING DATA AVAILABILITY")
+    print("CHECKING DATA AVAILABILITY----------------")
     
     braking_files = [
         "modules/braking/data/X_train_realistic.npy",
@@ -41,7 +41,7 @@ def check_data_availability():
     return True
 
 def generate_braking_data():
-    print("GENERATING BRAKING DATASET")
+    print("GENERATING BRAKING DATASET----------------")
     
     try:
         from modules.braking.data.realistic_ev_simulation import RealisticEVSimulator
@@ -79,7 +79,7 @@ def generate_braking_data():
         return False
 
 def generate_soc_data():
-    print("🔄 GENERATING SOC DATASET")
+    print("GENERATING SOC DATASET----------------")
     
     try:
         from modules.soc.data.preprocess import preprocess_nasa_data
@@ -121,7 +121,7 @@ def generate_soc_data():
         return False
 
 def check_model_availability():
-    print("CHECKING MODEL AVAILABILITY")
+    print("CHECKING MODEL AVAILABILITY----------------")
     
     models = {
         "braking": "modules/braking/models/final_multitask_model.pth",
@@ -141,7 +141,7 @@ def check_model_availability():
     return True
 
 def train_models():
-    print("TRAINING MODELS")
+    print("TRAINING MODELS----------------")
     
     try:
         # Train braking model
@@ -160,7 +160,7 @@ def train_models():
         return False
 
 def test_enhanced_pipeline():
-    print("TESTING ENHANCED PIPELINE WITH COGNITIVE PROFILING")
+    print("TESTING ENHANCED PIPELINE WITH COGNITIVE PROFILING----------------")
     
     try:
         from shared.enhanced_utils import EnhancedEVPipeline
@@ -223,7 +223,7 @@ def test_enhanced_pipeline():
         return False
 
 def run_performance_benchmark():
-    print("RUNNING PERFORMANCE BENCHMARK")
+    print("RUNNING PERFORMANCE BENCHMARK----------------")
     
     try:
         from shared.enhanced_utils import EnhancedEVPipeline
@@ -287,13 +287,13 @@ def run_performance_benchmark():
         return False
 
 def main():
-    print("EV SMART MANAGEMENT SYSTEM - COMPLETE PIPELINE TEST")
+    print("EV SMART MANAGEMENT SYSTEM - COMPLETE PIPELINE TEST----------------")
     
     results = {}
     
     # Check and generate data if needed
     if not check_data_availability():
-        print("GENERATING MISSING DATASETS")
+        print("GENERATING MISSING DATASETS----------------")
         
         braking_success = generate_braking_data()
         soc_success = generate_soc_data()
@@ -304,7 +304,7 @@ def main():
     
     # Check and train models if needed
     if not check_model_availability():
-        print("TRAINING MISSING MODELS")
+        print("TRAINING MISSING MODELS----------------")
         
         results['model_training'] = train_models()
     else:
@@ -312,21 +312,21 @@ def main():
     
     # Test enhanced pipeline
 
-    print("TESTING ENHANCED PIPELINE")
+    print("TESTING ENHANCED PIPELINE----------------")
 
     
     results['enhanced_pipeline'] = test_enhanced_pipeline()
     
     # Performance benchmark
 
-    print("PERFORMANCE BENCHMARK")
+    print("PERFORMANCE BENCHMARK----------------")
 
     
     results['performance'] = run_performance_benchmark()
     
     # Summary
 
-    print("PIPELINE TEST SUMMARY")
+    print("PIPELINE TEST SUMMARY----------------")
 
     
     for test_name, result in results.items():
@@ -334,15 +334,10 @@ def main():
         print(f"{test_name.replace('_', ' ').title()}: {status}")
     
     overall_success = all(results.values())
-    print(f"\nOverall: {'ALL TESTS PASSED' if overall_success else '❌ SOME TESTS FAILED'}")
+    print(f"\nOverall: {'ALL TESTS PASSED' if overall_success else 'SOME TESTS FAILED'}")
     
     if overall_success:
         print("\nEV Smart Management System is fully operational!")
-        print("   - Data generation:")
-        print("   - Model training:") 
-        print("   - Enhanced inference:")
-        print("   - Cognitive profiling:")
-        print("   - Performance optimization:")
     
     return overall_success
 
