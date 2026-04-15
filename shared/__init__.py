@@ -1,7 +1,3 @@
-"""
-shared/__init__.py
-Shared utilities for the Unified EV Smart Management System.
-"""
-from shared.utils import UnifiedEVPipeline
+from shared.enhanced_utils import EnhancedEVPipeline
 
-__all__ = ["UnifiedEVPipeline"]
+__all__ = ["EnhancedEVPipeline"]

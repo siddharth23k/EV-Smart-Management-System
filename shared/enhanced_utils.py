@@ -20,6 +20,7 @@ sys.path.append(str(project_root))
 from shared.config import get_config
 from modules.braking.models.multitask_lstm_cnn_attention import MultitaskLSTMCNNAttention
 from modules.soc.models.lstm_cnn_attention_soc import LSTMCNNAttentionSoC
+from shared.cognitive_manager import CognitiveEnergyManager
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -155,6 +156,7 @@ class EnhancedEVPipeline:
         # Initialize components
         self.validator = InputValidator(self.config)
         self.quantizer = ModelQuantizer()
+        self.cognitive_manager = CognitiveEnergyManager()
         
         # Initialize models
         self.braking_model = None
@@ -346,6 +348,88 @@ class EnhancedEVPipeline:
             results.append(result)
         
         return results
+    
+    def run_with_cognitive(self, driving_window: np.ndarray, battery_window: np.ndarray, 
+                           current_soc: float, driver_id: str = "default_driver") -> Dict[str, Any]:
+        """Run inference with cognitive driver profiling."""
+        # Validate inputs
+        if self.inference_config.get('validate_inputs', True):
+            if not self.validator.validate_braking_input(driving_window):
+                raise ValueError("Invalid braking input")
+            if not self.validator.validate_soc_input(battery_window):
+                raise ValueError("Invalid SoC input")
+            if not self.validator.validate_soc_value(current_soc):
+                raise ValueError("Invalid current SoC value")
+        
+        # Get basic predictions first
+        basic_result = self.run_single(driving_window, battery_window, current_soc)
+        
+        # Extract braking prediction for cognitive processing
+        braking_class = basic_result['braking']['class_id']
+        braking_intensity = basic_result['braking']['intensity']
+        
+        # Prepare vehicle state for cognitive processing
+        vehicle_state = {
+            'battery_temp': 25.0,  # Could be extracted from battery window
+            'motor_temp': 30.0,   # Could be estimated from driving patterns
+            'avg_speed': np.mean(driving_window[:, 0]),
+            'base_regen_efficiency': self.performance_config.get('regen_efficiency', 0.65)
+        }
+        
+        # Process with cognitive manager
+        try:
+            cognitive_result = self.cognitive_manager.process_driving_event(
+                driver_id=driver_id,
+                driving_window=driving_window,
+                braking_class=braking_class,
+                intensity=braking_intensity,
+                current_soc=current_soc,
+                vehicle_state=vehicle_state
+            )
+            
+            # Merge basic results with cognitive insights
+            enhanced_result = basic_result.copy()
+            enhanced_result['cognitive'] = {
+                'driver_profile': cognitive_result['driver_profile'],
+                'soc_adjustment': cognitive_result['soc_adjustment'],
+                'prediction_confidence': cognitive_result['prediction_confidence'],
+                'energy_recovery': cognitive_result['energy_recovery'],
+                'recommendations': cognitive_result['recommendations'],
+                'cognitive_insights': cognitive_result['cognitive_insights']
+            }
+            
+            # Update SoC with cognitive adjustment
+            if cognitive_result['prediction_confidence'] > 0.7:  # High confidence
+                enhanced_result['soc']['updated'] = np.clip(
+                    current_soc + cognitive_result['soc_adjustment'], 0, 1
+                )
+                enhanced_result['soc']['delta'] = enhanced_result['soc']['updated'] - current_soc
+            
+            # Update system action based on cognitive insights
+            driver_style = cognitive_result['driver_profile']['driving_style']
+            if driver_style == 'eco':
+                enhanced_result['system_action'] = "COGNITIVE_ECO: Optimized regenerative braking for efficiency"
+            elif driver_style == 'aggressive':
+                enhanced_result['system_action'] = "COGNITIVE_SPORT: Performance-oriented regenerative braking"
+            elif driver_style == 'conservative':
+                enhanced_result['system_action'] = "COGNITIVE_SAFE: Battery-protective regenerative braking"
+            else:
+                enhanced_result['system_action'] = enhanced_result['system_action']  # Keep original
+            
+            logger.info(f"Cognitive processing completed for driver {driver_id}")
+            return enhanced_result
+            
+        except Exception as e:
+            logger.error(f"Cognitive processing failed: {e}, using basic results")
+            return basic_result
+    
+    def get_cognitive_summary(self) -> Dict[str, Any]:
+        """Get cognitive system summary."""
+        try:
+            return self.cognitive_manager.get_cognitive_summary()
+        except Exception as e:
+            logger.error(f"Failed to get cognitive summary: {e}")
+            return {"error": str(e), "cognitive_available": False}
     
     def run(self, driving_window: Union[np.ndarray, List[np.ndarray]], 
             battery_window: Union[np.ndarray, List[np.ndarray]], 
