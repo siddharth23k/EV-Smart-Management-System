@@ -2,6 +2,6 @@
     "current_driver_profile": {
         "driver_id": "test_driver_001",
         "driving_style": "normal",
-        "avg_braking_intensity": 0.49797192215919495,
-        "braking_frequency": 0.8266666666666667,
+        "avg_braking_intensity": 0.5300576686859131,
+        "braking_frequency": 0.48,
         "speed_variance": 
