@@ -67,7 +67,7 @@ class RealisticEVSimulator:
         self.seq_len = 75  # 7.5 seconds of data
         
     def _get_regen_efficiency(self, speed: float) -> float:
-        #Get regenerative braking efficiency at given speed.#
+        #Get regenerative braking efficiency at given speed.
         speeds = sorted(self.vehicle.regen_efficiency_curve.keys())
         
         if speed <= speeds[0]:
@@ -85,7 +85,7 @@ class RealisticEVSimulator:
         return 0.65  # Default efficiency
     
     def _calculate_resistive_forces(self, speed: float) -> float:
-        #Calculate total resistive force acting on vehicle.#
+        #Calculate total resistive force acting on vehicle.
         # Aerodynamic drag: F = 0.5 * ρ * Cd * A * v^2
         relative_wind_speed = speed + self.road.wind_speed
         aero_drag = 0.5 * self.road.air_density * self.vehicle.drag_coefficient * \
@@ -101,7 +101,7 @@ class RealisticEVSimulator:
         return aero_drag + rolling_resistance + gravity_component
     
     def _calculate_braking_force(self, brake_pedal: float, speed: float) -> Tuple[float, float]:
-        #Calculate regenerative and mechanical braking forces.#
+        #Calculate regenerative and mechanical braking forces.
         # Total desired braking force based on pedal position
         max_total_force = self.vehicle.max_mechanical_brake + \
                          (self.vehicle.max_regen_power / max(speed, 0.1))
@@ -157,7 +157,7 @@ class RealisticEVSimulator:
                                  scenario: Optional[DrivingScenario] = None,
                                  initial_speed: Optional[float] = None,
                                  road_slope: Optional[float] = None) -> Tuple[np.ndarray, int, float]:
-        #Generate a single realistic braking sample.#
+        #Generate a single realistic braking sample.
         # Randomize parameters if not provided
         if scenario is None:
             scenario = np.random.choice(list(DrivingScenario))
@@ -269,7 +269,7 @@ class RealisticEVSimulator:
         return np.array(X), np.array(y_class), np.array(y_intensity)
     
     def save_simulation_metadata(self, filepath: str):
-        #Save simulation parameters for reproducibility.#
+        #Save simulation parameters for reproducibility.
         metadata = {
             "vehicle_parameters": {
                 "mass": self.vehicle.mass,
@@ -300,8 +300,8 @@ class RealisticEVSimulator:
 
 def generate_realistic_dataset(n_samples: int = 15000, 
                               save_path: str = "modules/braking/data") -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    #Main function to generate realistic EV braking dataset.#
-    print("=== Generating Realistic EV Braking Dataset ===")
+    #Main function to generate realistic EV braking dataset.
+    print("Generating Realistic EV Braking Dataset")
     
     # Initialize simulator
     simulator = RealisticEVSimulator()
@@ -343,7 +343,6 @@ def generate_realistic_dataset(n_samples: int = 15000,
     # Save metadata
     simulator.save_simulation_metadata(f"{save_path}/realistic_simulation_metadata.json")
     
-    # Print statistics
     print(f"\n Dataset Statistics ")
     print(f"Total samples: {n}")
     print(f"Training: {n_train} ({n_train/n*100:.1f}%)")
@@ -383,4 +382,4 @@ if __name__ == "__main__":
         save_path="modules/braking/data"
     )
     
-    print("\nRealistic EV braking simulation completed!")
+    print("\nRealistic EV braking simulation completed")

@@ -1,5 +1,3 @@
-# EV Smart Management System - Default Configuration
-
 # System Configuration
 system:
   device: "auto"  # auto, cpu, cuda
