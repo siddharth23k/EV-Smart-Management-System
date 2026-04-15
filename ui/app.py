@@ -1,6 +1,6 @@
 """
-EV Smart Management System Streamlit UI
-Original interface with basic functionality
+Enhanced EV Smart Management System Streamlit UI
+Integrates Braking Intention + SoC Prediction with all improvements
 """
 
 import sys
