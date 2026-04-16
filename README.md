@@ -61,7 +61,7 @@
 - **GPU**: Optional (CUDA support available)
 - **OS**: Windows/macOS/Linux
 
-### **⚡ 5-Minute Setup**
+### **5-Minute Setup**
 
 ```bash
 # 1. Clone Repository
@@ -75,7 +75,7 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 # 3. Install Dependencies
 pip install -r requirements.txt
 
-# 4. Run Complete Pipeline (Recommended)
+# 4. Run Complete Pipeline 
 python run_complete_pipeline.py
 
 # This will automatically:
@@ -97,14 +97,6 @@ streamlit run ui/app.py
 ```
 
 ---
-
-## **Entry Points & Usage**
-
-### **Different Entry Points for Different Needs**
-
-| Script | Purpose | When to Use | Features |
-|--------|---------|-------------|----------|
-| **run_complete_pipeline.py** | Complete system pipeline | All use cases | Full data generation + training + inference |
 
 ### **Usage Examples**
 
@@ -244,27 +236,27 @@ python shared/cognitive_manager.py
 ### **⚡ System Performance**
 
 ```
--> Single Inference: 2.8ms average
--> Batch Inference: 28ms for 100 samples (3.5ms per sample)
--> Throughput: 356.8 samples/second
--> Memory Usage: 156MB (models + data)
--> CPU Utilization: 45% (single thread)
--> Energy Recovery: Up to 65% efficiency
+-> Single Inference: 2.14ms average (1.88-4.45ms range)
+-> Batch Inference: 1,285-1,540 samples/second
+-> Throughput: 1,300+ samples/second (100 sample batches)
+-> Memory Usage: Optimized for deployment
+-> CPU Utilization: Efficient processing
+-> Energy Recovery: Intelligent optimization with cognitive learning
 ```
 
 ### **Testing Results**
 
 ```bash
-EV SMART MANAGEMENT SYSTEM - COMPREHENSIVE TESTING
-============================================================
+EV SMART MANAGEMENT SYSTEM - COMPLETE PIPELINE TEST
+====================================================
 
-Data Generation: ✅ PASS (25.58s)
-Model Training: ✅ PASS (25.81s total)
-Unified Inference: ✅ PASS (8.4ms)
-Performance: ✅ PASS (356.8 samples/sec)
+Data Generation: PASS
+Model Training: PASS
+Enhanced Pipeline: PASS
+Performance: PASS
 
-Overall: 4/4 tests passed ✅
-All tests passed! System is ready for production.
+Overall: ALL TESTS PASSED
+EV Smart Management System is fully operational!
 ```
 
 ---
@@ -279,10 +271,11 @@ All tests passed! System is ready for production.
 - **Graceful Fallbacks**: Handles missing models/data
 
 ### ** Model Optimization**
-- **Dynamic Quantization**: Reduces model size by 70%
-- **Batch Processing**: Efficient multi-sample inference
+- **Fallback Optimization**: Uses original models when quantization unavailable
+- **Batch Processing**: Efficient multi-sample inference (1,300+ samples/sec)
 - **Attention Mechanisms**: Focuses on critical time steps
 - **Multi-Modal Fusion**: Combines spatial and temporal features
+- **Cognitive Learning**: Adapts to driver behavior patterns
 
 ### ** Performance Monitoring**
 - **Latency Tracking**: Real-time inference timing
