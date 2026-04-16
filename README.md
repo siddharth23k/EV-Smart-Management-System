@@ -3,8 +3,8 @@
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-4%2F4%20Passing-brightgreen.svg)](test_system.py)
-[![Performance](https://img.shields.io/badge/Performance-412%20samples%2Fsec-orange.svg)](test_system.py)
+[![Tests](https://img.shields.io/badge/Tests-Manual%20Testing-brightgreen.svg)](run_complete_pipeline.py)
+[![Performance](https://img.shields.io/badge/Performance-Production%20Ready-orange.svg)](run_complete_pipeline.py)
 
 > **Advanced Intelligent Electric Vehicle Management System**  
 > Multi-objective AI-powered braking intention prediction, battery State-of-Charge estimation, cognitive driver profiling, and physics-informed optimization for next-generation EV energy management
@@ -75,24 +75,25 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 # 3. Install Dependencies
 pip install -r requirements.txt
 
-# 4. Generate Datasets (30 seconds)
+# 4. Run Complete Pipeline (Recommended)
+python run_complete_pipeline.py
+
+# This will automatically:
+#   - Generate datasets if needed
+#   - Train models if needed
+#   - Run inference demo
+
+# Alternative: Manual Steps
 python modules/data/generate_all_datasets_fixed.py
-
-# 5. Train Models (2 minutes)
 python modules/train/train_all_models.py
-
-# 6. Run System
-python run_enhanced.py --demo all
+python run_complete_pipeline.py --demo-only
 ```
 
 ### **Web Interface**
 
 ```bash
-# Enhanced Unified UI (Recommended)
+# Web Interface
 streamlit run ui/app.py
-
-# Original Braking-Only UI
-streamlit run ui/app_original.py
 ```
 
 ---
@@ -103,25 +104,13 @@ streamlit run ui/app_original.py
 
 | Script | Purpose | When to Use | Features |
 |--------|---------|-------------|----------|
-| **run_unified.py** | Quick demo & basic testing | Development, quick validation | Basic unified pipeline |
-| **run_enhanced.py** | Production deployment | Production systems | Input validation, quantization, batch processing |
-| **run_complete_pipeline.py** | Complete setup from scratch | New installations | Full data generation + training + inference |
-| **run_complete_training.py** | Full model optimization | Training all advanced models | Multi-objective GA, ensemble, physics, cognitive |
+| **run_complete_pipeline.py** | Complete system pipeline | All use cases | Full data generation + training + inference |
 
 ### **Usage Examples**
 
 ```bash
-# Quick Demo (2 minutes)
-python run_unified.py
-
-# Production System (with all features)
-python run_enhanced.py --demo all
-
-# Complete Setup from Scratch (30 minutes)
+# Complete System Pipeline (Recommended)
 python run_complete_pipeline.py
-
-# Full Advanced Training (4-6 hours)
-python run_complete_training.py
 
 # Individual Component Training
 python modules/soc/models/multi_objective_ga_optimizer.py
@@ -308,93 +297,63 @@ All tests passed! System is ready for production.
 ```
 EV-Smart-Management-System/
 |
-├──  ui/                           # User Interface Layer
-│   ├── app.py                        # Enhanced unified UI (braking + SoC)
-│   └── app_original.py               # Original braking-only UI
+|  ui/                           # User Interface Layer
+|   app.py                        # Web interface dashboard
 |
-├──  modules/                       # Core Modules
-│   ├──  braking/                  # Braking Intention Module
-│   │   ├── data/                     # Braking datasets (10,500 samples)
-│   │   ├── models/                   # Trained models (4.2MB)
-│   │   └── notebooks/                # Research & development
-│   │
-│   ├──  soc/                       # Battery SoC Module
-│   │   ├── data/                     # NASA battery datasets (702,889 samples)
-│   │   ├── models/                   # Trained models (2.8MB)
-│   │   └── notebooks/                # Research & development
-│   │
-│   ├──  data/                      # Data Generation Pipeline
-│   │   ├── generate_all_datasets_fixed.py
-│   │   └── real_braking_preprocessor.py
-│   │
-│   ├──  train/                     # Training Scripts
-│   │   ├── train_all_models.py
-│   │   ├── train_braking.py
-│   │   ├── train_soc.py
-│   │   └── run_full_training.sh
-│   │
-│   └──  shared/                     # Shared Utilities
-│       ├── train_utils.py
-│       └── notebooks/
+|  modules/                       # Core Modules
+|   braking/                     # Braking Intention Module
+|   data/                        # Braking datasets (15,000 samples)
+|   models/                      # Trained models and optimizers
+|   notebooks/                   # Research & development
+|   soc/                         # Battery SoC Module
+|   data/                        # NASA battery datasets (processed)
+|   models/                      # Advanced SoC models and optimizers
+|   notebooks/                   # Research & development
 |
-├──  shared/                        # System Core
-│   ├── config.py                    # Configuration management
-│   ├── enhanced_utils.py            # Enhanced unified pipeline
-│   ├── utils.py                     # Original unified pipeline
-│   ├── train_utils.py              # Training utilities
-│   └── __init__.py
+|   data/                        # Data Generation Pipeline
+|   |-- generate_all_datasets_fixed.py
+|   -- real_braking_preprocessor.py
 |
-├──  config/                       # Configuration Files
-│   └── default.yaml                # System parameters & paths
+|   train/                       # Training Scripts
+|   |-- train_all_models.py
+|   |-- train_braking.py
+|   |-- train_soc.py
+|   -- run_full_training.sh
 |
-├──  run_enhanced.py               # Enhanced main entry point
-├──  run_unified.py                # Original main entry point
-├──  test_system.py                # Comprehensive test suite
-├──  requirements.txt              # Dependencies
-├──  LICENSE                      # MIT License
-├──  README.md                    # This file
-└──  assets/                      # Documentation & media
+|--  shared/                      # System Core
+|   |-- config.py                 # Configuration management
+|   |-- enhanced_utils.py         # Enhanced utilities
+|   |-- cognitive_manager.py      # Cognitive energy management
+|   -- __init__.py
+|
+|--  config/                      # Configuration Files
+|   -- default.yaml               # System parameters & paths
+|
+|--  run_complete_pipeline.py     # Complete system pipeline
+|--  requirements.txt             # Dependencies
+|--  LICENSE                      # MIT License
+|--  README.md                    # This file
+--  assets/                       # Documentation & media
 ```
 
 ---
 
 ## 🎮 **Usage Examples**
 
-### ** Single Inference**
+### ** Complete Pipeline Usage**
 ```python
-from shared.enhanced_utils import EnhancedEVPipeline
-import numpy as np
+# Run complete system pipeline
+python run_complete_pipeline.py
 
-# Initialize pipeline
-pipeline = EnhancedEVPipeline()
-
-# Generate sample data
-driving_data = np.random.rand(75, 3).astype(np.float32)
-battery_data = np.random.rand(50, 3).astype(np.float32)
-current_soc = 0.7
-
-# Run inference
-result = pipeline.run(driving_data, battery_data, current_soc)
-
-print(f"Braking: {result['braking']['class']}")
-print(f"SoC: {result['soc']['updated']:.2%}")
-print(f"Action: {result['system_action']}")
+# This will:
+# 1. Check data availability
+# 2. Generate datasets if needed
+# 3. Train models if needed
+# 4. Run inference demo
+# 5. Display performance metrics
 ```
 
-### ** Batch Inference**
-```python
-# Generate batch data
-batch_driving = np.random.rand(100, 75, 3).astype(np.float32)
-batch_battery = np.random.rand(100, 50, 3).astype(np.float32)
-batch_soc = np.random.rand(100)
-
-# Run batch inference
-results = pipeline.run_batch(batch_driving, batch_battery, batch_soc)
-
-print(f"Processed {len(results)} samples in {pipeline.inference_time:.2f}ms")
-```
-
-### ** Streamlit Interface**
+### ** Web Interface**
 ```python
 # Run interactive dashboard
 streamlit run ui/app.py
@@ -404,7 +363,7 @@ streamlit run ui/app.py
 # - Interactive parameter sliders
 # - Live prediction visualization
 # - Performance metrics dashboard
-# - Downloadable reports
+# - Energy management insights
 ```
 
 ---
@@ -454,23 +413,23 @@ paths:
 
 ##  **Testing & Validation**
 
-### ** Comprehensive Test Suite**
+### ** System Validation**
 ```bash
-python test_system.py
+python run_complete_pipeline.py
 ```
 
-**Test Coverage:**
+**Pipeline Coverage:**
 -  Data Generation Pipeline
 -  Model Training Pipeline  
 -  Unified Inference System
--  Performance Benchmarks
+-  Integration Testing
 
-### ** Model Validation**
+### ** Component Testing**
 ```bash
 # Test individual components
-python run_enhanced.py --demo single    # Single inference test
-python run_enhanced.py --demo batch     # Batch inference test
-python run_enhanced.py --demo validation # Input validation test
-python run_enhanced.py --demo benchmark  # Performance test
+python modules/soc/models/multi_objective_ga_optimizer.py
+python modules/soc/models/adaptive_ensemble.py
+python modules/soc/models/physics_informed_soc.py
+python shared/cognitive_manager.py
 ```
 
