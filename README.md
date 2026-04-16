@@ -105,10 +105,8 @@ streamlit run ui/app.py
 python run_complete_pipeline.py
 
 # Individual Component Training
-python modules/soc/models/multi_objective_ga_optimizer.py
-python modules/soc/models/adaptive_ensemble.py
-python modules/soc/models/physics_informed_soc.py
-python shared/cognitive_manager.py
+python modules/train/train_braking.py
+python modules/train/train_soc.py
 ```
 
 ---
@@ -166,61 +164,6 @@ python shared/cognitive_manager.py
 
 ---
 
-## **System Architecture**
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    USER INTERFACE LAYER                     │
-├─────────────────────────────────────────────────────────────┤
-│    Streamlit Dashboard (ui/app.py)                          │
-│  - Real-time driving/battery scenario controls              │
-│  - Interactive time-series visualization                    │
-│  - Live prediction results with metrics                     │
-│  - Downloadable prediction reports                          │
-└─────────────────────────────────────────────────────────────┘
-                           │
-┌─────────────────────────────────────────────────────────────┐
-│                 INFERENCE LAYER                             │
-├─────────────────────────────────────────────────────────────┤
-│   EnhancedEVPipeline (shared/enhanced_utils.py)             │
-│  -  Input validation (shapes, types, NaN values)            │
-│  -  Model quantization (2-3ms inference)                    │
-│  -  Batch inference (350+ samples/second)                   │
-│  -  Error handling (graceful fallbacks)                     │
-│  -  Performance monitoring (latency tracking)               │
-└─────────────────────────────────────────────────────────────┘
-                           │
-┌─────────────────────────────────────────────────────────────┐
-│                 MODEL LAYER                                 │
-├─────────────────────────────────────────────────────────────┤
-│   Braking Models:                                           │
-│  - LSTMCNNAttention (baseline)                              │
-│  - MultitaskLSTMCNNAttention (GA-optimized)                 │
-│  - Genetic Algorithm hyperparameter optimization            │
-│                                                             │
-│   SoC Models:                                               │
-│  - LSTMSoC (baseline)                                       │
-│  - LSTMCNNAttentionSoC (enhanced)                           │
-│  - Multi-modal attention mechanisms                         │
-└─────────────────────────────────────────────────────────────┘
-                           │
-┌─────────────────────────────────────────────────────────────┐
-│                 DATA LAYER                                  │
-├─────────────────────────────────────────────────────────────┤
-│   Braking Data:                                             │
-│  - Synthetic driving scenarios (10,500 samples)             │
-│  - 75 timesteps × 3 features (speed, accel, brake)          │
-│  - 3-class balanced distribution                            │
-│                                                             │
-│   SoC Data:                                                 │
-│  - NASA battery dataset (7,565 CSV files)                   │
-│  - 702,889 windows × 50 timesteps × 3 features              │
-│  - Real-world battery cycling data                          │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
 ## **Performance Metrics**
 
 ### **Model Performance**
@@ -233,7 +176,7 @@ python shared/cognitive_manager.py
 | **Throughput** | 833 samples/s | 1250 samples/s | 356 samples/s |
 | **Model Size** | 4.2MB (1.1MB quantized) | 2.8MB (0.9MB quantized) | 7.0MB |
 
-### **⚡ System Performance**
+### **System Performance**
 
 ```
 -> Single Inference: 2.14ms average (1.88-4.45ms range)
@@ -247,9 +190,16 @@ python shared/cognitive_manager.py
 ### **Testing Results**
 
 ```bash
-EV SMART MANAGEMENT SYSTEM - COMPLETE PIPELINE TEST
-====================================================
-
+EV SMART MANAGEMENT SYSTEM - COMPLETE PIPELINE TEST----------------
+CHECKING DATA AVAILABILITY----------------
+All datasets available
+CHECKING MODEL AVAILABILITY----------------
+All models available
+TESTING ENHANCED PIPELINE----------------
+Enhanced pipeline test completed successfully
+PERFORMANCE BENCHMARK----------------
+Performance benchmark completed
+PIPELINE TEST SUMMARY----------------
 Data Generation: PASS
 Model Training: PASS
 Enhanced Pipeline: PASS
@@ -263,21 +213,21 @@ EV Smart Management System is fully operational!
 
 ## **Advanced Features**
 
-### ** Input Validation & Error Handling**
+### **Input Validation & Error Handling**
 - **Shape Validation**: Ensures correct input dimensions
 - **Type Checking**: Validates numpy arrays and data types
 - **Range Validation**: Checks for reasonable value ranges
 - **NaN/Inf Detection**: Prevents model crashes
 - **Graceful Fallbacks**: Handles missing models/data
 
-### ** Model Optimization**
+### **Model Optimization**
 - **Fallback Optimization**: Uses original models when quantization unavailable
 - **Batch Processing**: Efficient multi-sample inference (1,300+ samples/sec)
 - **Attention Mechanisms**: Focuses on critical time steps
 - **Multi-Modal Fusion**: Combines spatial and temporal features
 - **Cognitive Learning**: Adapts to driver behavior patterns
 
-### ** Performance Monitoring**
+### **Performance Monitoring**
 - **Latency Tracking**: Real-time inference timing
 - **Memory Profiling**: Resource usage optimization
 - **Throughput Analysis**: System capacity measurement
@@ -285,7 +235,7 @@ EV Smart Management System is fully operational!
 
 ---
 
-##  **Project Structure**
+## **Project Structure**
 
 ```
 EV-Smart-Management-System/
