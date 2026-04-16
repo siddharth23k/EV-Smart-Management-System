@@ -1,7 +1,3 @@
-
-# Enhanced Unified EV Smart Management System with validation, error handling, batch inference, and quantization support.
-
-
 import os
 import sys
 import json
@@ -35,7 +31,6 @@ class InputValidator:
         self.soc_config = config.get_soc_model_config()
     
     def validate_braking_input(self, driving_window: np.ndarray) -> bool:
-        """Validate braking input data."""
         try:
             # Check type
             if not isinstance(driving_window, np.ndarray):
@@ -67,7 +62,6 @@ class InputValidator:
             return False
     
     def validate_soc_input(self, battery_window: np.ndarray) -> bool:
-        """Validate SoC input data."""
         try:
             # Check type
             if not isinstance(battery_window, np.ndarray):
@@ -102,7 +96,6 @@ class InputValidator:
             return False
     
     def validate_soc_value(self, current_soc: float) -> bool:
-        """Validate current SoC value."""
         try:
             if not isinstance(current_soc, (int, float)):
                 raise ValueError("Current SoC must be a number")
@@ -121,7 +114,7 @@ class ModelQuantizer:
     
     @staticmethod
     def quantize_model(model: nn.Module, example_input: torch.Tensor) -> nn.Module:
-        """Quantize PyTorch model for faster inference."""
+        # Quantize PyTorch model for faster inference
         try:
             # Set model to evaluation mode
             model.eval()
@@ -144,7 +137,6 @@ class EnhancedEVPipeline:
     """Enhanced EV Smart Management System with all improvements."""
     
     def __init__(self, config_path: Optional[str] = None):
-        """Initialize enhanced pipeline."""
         self.config = get_config() if config_path is None else get_config()
         self.device = self.config.get_device()
         
@@ -170,7 +162,6 @@ class EnhancedEVPipeline:
         logger.info("Enhanced EV Pipeline initialized successfully")
     
     def _load_models(self):
-        """Load models with error handling."""
         try:
             # Load braking model
             self._load_braking_model()
@@ -186,7 +177,6 @@ class EnhancedEVPipeline:
             raise RuntimeError(f"SoC model loading failed: {e}")
     
     def _load_braking_model(self):
-        """Load braking model with error handling."""
         model_path = os.path.join(self.paths['models']['braking'], 'final_multitask_model.pth')
         hp_path = os.path.join(self.paths['models']['braking'], 'best_ga_hyperparams.json')
         
@@ -201,10 +191,10 @@ class EnhancedEVPipeline:
                 # Use parameters that match the saved model architecture
                 self.braking_model = MultitaskLSTMCNNAttention(
                     input_dim=3,
-                    cnn_channels=32,  # Match saved model
+                    cnn_channels=32,  
                     lstm_hidden=hp.get("lstm_hidden_size", 64),
-                    num_lstm_layers=1,  # Match saved model
-                    dropout_rate=0.0,  # Match saved model
+                    num_lstm_layers=1, 
+                    dropout_rate=0.0, 
                 )
             else:
                 # Use default configuration
@@ -236,7 +226,6 @@ class EnhancedEVPipeline:
             raise RuntimeError(f"Error loading braking model: {e}")
     
     def _load_soc_model(self):
-        """Load SoC model with error handling."""
         model_path = os.path.join(self.paths['models']['soc'], 'lstm_cnn_attention_soc.pth')
         
         if not os.path.exists(model_path):
@@ -247,10 +236,10 @@ class EnhancedEVPipeline:
             # The saved model has different architecture than config defaults
             self.soc_model = LSTMCNNAttentionSoC(
                 input_dim=3,
-                cnn_channels=64,  # Match saved model
-                lstm_hidden=128,  # Match saved model
-                num_lstm_layers=2,  # Match saved model
-                dropout=0.2,  # Match saved model
+                cnn_channels=64,  
+                lstm_hidden=128,  
+                num_lstm_layers=2,  
+                dropout=0.2,  
             )
             
             # Load state dict
@@ -424,7 +413,6 @@ class EnhancedEVPipeline:
             return basic_result
     
     def get_cognitive_summary(self) -> Dict[str, Any]:
-        """Get cognitive system summary."""
         try:
             return self.cognitive_manager.get_cognitive_summary()
         except Exception as e:
@@ -488,7 +476,6 @@ class EnhancedEVPipeline:
     
     def _determine_system_action(self, class_label: str, intensity_val: float, 
                                updated_soc: float) -> str:
-        """Determine appropriate system action."""
         if class_label == "Emergency Braking":
             return "EMERGENCY: Maximum regenerative braking - safety mode"
         elif class_label == "Normal Braking":
@@ -504,14 +491,12 @@ class EnhancedEVPipeline:
     
     def generate_sample_inputs(self, num_samples: int = 1) -> Tuple[Union[np.ndarray, List[np.ndarray]], 
                                                               Union[np.ndarray, List[np.ndarray]]]:
-        """Generate sample inputs for testing."""
         if num_samples == 1:
             return self._generate_single_sample()
         else:
             return self._generate_batch_samples(num_samples)
     
     def _generate_single_sample(self) -> Tuple[np.ndarray, np.ndarray]:
-        """Generate single sample input."""
         # Driving window: (75, 3) - speed, acceleration, brake pedal
         t = np.linspace(0, 1, 75)
         speed = 60 - 30 * t + np.random.normal(0, 0.5, 75)
@@ -538,7 +523,6 @@ class EnhancedEVPipeline:
         return driving_window, battery_window
     
     def _generate_batch_samples(self, num_samples: int) -> Tuple[List[np.ndarray], List[np.ndarray]]:
-        """Generate batch sample inputs."""
         driving_windows = []
         battery_windows = []
         
@@ -550,7 +534,6 @@ class EnhancedEVPipeline:
         return driving_windows, battery_windows
     
     def get_model_info(self) -> Dict[str, Any]:
-        """Get model information and status."""
         return {
             "braking_model_loaded": self.braking_model is not None,
             "soc_model_loaded": self.soc_model is not None,

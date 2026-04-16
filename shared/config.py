@@ -1,6 +1,4 @@
 
-# Configuration management for EV Smart Management System.
-
 import os
 import yaml
 import torch

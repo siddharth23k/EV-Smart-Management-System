@@ -45,8 +45,8 @@ models:
     
   soc:
     input_dim: 3
-    cnn_channels: 32
-    lstm_hidden: 64
+    cnn_channels: 64
+    lstm_hidden: 128
     num_lstm_layers: 2
     dropout_rate: 0.2
     
