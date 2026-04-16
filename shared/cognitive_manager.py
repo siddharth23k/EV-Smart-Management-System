@@ -530,13 +530,26 @@ class CognitiveEnergyManager:
     def _save_cognitive_state(self):
         """Save cognitive state to file."""
         try:
+            def convert_numpy_types(obj):
+                """Convert numpy types to native Python types for JSON serialization."""
+                if hasattr(obj, 'dtype'):
+                    if obj.dtype == np.float32 or obj.dtype == np.float64:
+                        return float(obj)
+                    elif obj.dtype == np.int32 or obj.dtype == np.int64:
+                        return int(obj)
+                elif isinstance(obj, dict):
+                    return {k: convert_numpy_types(v) for k, v in obj.items()}
+                elif isinstance(obj, list):
+                    return [convert_numpy_types(item) for item in obj]
+                return obj
+            
             state_data = {
-                'current_driver_profile': self.cognitive_state.current_driver_profile.to_dict() if self.cognitive_state.current_driver_profile else None,
-                'recent_braking_events': self.cognitive_state.recent_braking_events,
-                'energy_recovery_history': self.cognitive_state.energy_recovery_history,
-                'soc_prediction_confidence': self.cognitive_state.soc_prediction_confidence,
-                'adaptation_level': self.cognitive_state.adaptation_level,
-                'last_update_time': self.cognitive_state.last_update_time
+                'current_driver_profile': convert_numpy_types(self.cognitive_state.current_driver_profile.to_dict()) if self.cognitive_state.current_driver_profile else None,
+                'recent_braking_events': convert_numpy_types(self.cognitive_state.recent_braking_events),
+                'energy_recovery_history': convert_numpy_types(self.cognitive_state.energy_recovery_history),
+                'soc_prediction_confidence': convert_numpy_types(self.cognitive_state.soc_prediction_confidence),
+                'adaptation_level': convert_numpy_types(self.cognitive_state.adaptation_level),
+                'last_update_time': convert_numpy_types(self.cognitive_state.last_update_time)
             }
             
             os.makedirs(os.path.dirname(self.save_path), exist_ok=True)
@@ -566,9 +579,22 @@ class CognitiveEnergyManager:
     def _save_driver_profiles(self):
         """Save driver profiles to file."""
         try:
+            def convert_numpy_types(obj):
+                """Convert numpy types to native Python types for JSON serialization."""
+                if hasattr(obj, 'dtype'):
+                    if obj.dtype == np.float32 or obj.dtype == np.float64:
+                        return float(obj)
+                    elif obj.dtype == np.int32 or obj.dtype == np.int64:
+                        return int(obj)
+                elif isinstance(obj, dict):
+                    return {k: convert_numpy_types(v) for k, v in obj.items()}
+                elif isinstance(obj, list):
+                    return [convert_numpy_types(item) for item in obj]
+                return obj
+            
             profiles_data = {}
             for driver_id, profile in self.driver_profiles.items():
-                profiles_data[driver_id] = profile.to_dict()
+                profiles_data[driver_id] = convert_numpy_types(profile.to_dict())
             
             os.makedirs(os.path.dirname("shared/driver_profiles.json"), exist_ok=True)
             with open("shared/driver_profiles.json", 'w') as f:
