@@ -1,6 +1,3 @@
-
-# Implements driver behavior profiling, personalized SoC prediction, and adaptive energy recovery
-
 import json
 import os
 import sys
@@ -9,7 +6,6 @@ from dataclasses import dataclass, asdict
 from typing import Dict, List, Tuple, Optional, Any
 from enum import Enum
 import numpy as np
-import torch
 
 # Add project root to path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -28,7 +24,6 @@ class DrivingStyle(Enum):
 
 @dataclass
 class DriverProfile:
-    """Driver behavior profile."""
     driver_id: str
     driving_style: DrivingStyle
     avg_braking_intensity: float
