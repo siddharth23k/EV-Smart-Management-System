@@ -110,7 +110,7 @@ def check_existing_results():
 
 def generate_final_report(results):
     """Generate final report from existing results."""
-    print("=== GENERATING FINAL REPORT ===")
+    print(" GENERATING FINAL REPORT")
     
     # Count successful and failed components
     components_trained = sum(1 for r in results.values() if r["status"] == "success")
@@ -152,7 +152,6 @@ def generate_final_report(results):
 def main():
     """Update final report from existing results."""
     print("EV SMART MANAGEMENT SYSTEM - UPDATE FINAL REPORT")
-    print("=" * 60)
     
     # Check existing results
     results = check_existing_results()
@@ -161,9 +160,7 @@ def main():
     report_path = generate_final_report(results)
     
     # Print summary
-    print("\n" + "=" * 60)
     print("FINAL REPORT UPDATE SUMMARY")
-    print("=" * 60)
     
     for component, result in results.items():
         status = "SUCCESS" if result["status"] == "success" else "FAILED"

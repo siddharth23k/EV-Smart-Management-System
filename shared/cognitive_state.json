@@ -2,11 +2,11 @@
     "current_driver_profile": {
         "driver_id": "test_driver_001",
         "driving_style": "normal",
-        "avg_braking_intensity": 0.5010285377502441,
-        "braking_frequency": 0.44,
+        "avg_braking_intensity": 0.5011798143386841,
+        "braking_frequency": 0.4266666666666667,
         "speed_variance": 0.9999998807907104,
         "acceleration_patterns": [
-            1.1126200405442432e-08
+            -1.907348590179936e-08
         ],
         "preferred_regen_level": 0.6,
         "battery_usage_efficiency": 0.7
@@ -121,6 +121,17 @@
             "brake_smoothness": 0.13763457536697388,
             "intensity": 0.5010285377502441,
             "class": 0
+        },
+        {
+            "avg_speed": 7.947286162490741e-10,
+            "speed_variance": 0.9999998807907104,
+            "avg_acceleration": -1.907348590179936e-08,
+            "accel_variance": 1.0,
+            "braking_frequency": 0.4266666666666667,
+            "max_brake_force": 2.468183994293213,
+            "brake_smoothness": 0.12365841865539551,
+            "intensity": 0.5011798143386841,
+            "class": 0
         }
     ],
     "energy_recovery_history": [
@@ -133,9 +144,10 @@
         0.32592247128486634,
         0.32571837306022644,
         0.3257343351840973,
-        0.3256685495376587
+        0.3256685495376587,
+        0.32576687932014464
     ],
     "soc_prediction_confidence": 0.02,
-    "adaptation_level": 0.5,
-    "last_update_time": 1776603485.2414122
+    "adaptation_level": 0.55,
+    "last_update_time": 1776628033.101707
 }

@@ -94,11 +94,11 @@ def train_models():
     
     try:
         print("Training braking model...")
-        os.system("cd /Users/siddh/Desktop/SID/projects/EV-Smart-Management-System && source .venv/bin/activate && python modules/train/train_braking.py")
+        os.system(f"cd {project_root} && source .venv/bin/activate && python modules/train/train_braking.py")
         
         # Train SoC model
         print("Training SoC model...")
-        os.system("cd /Users/siddh/Desktop/SID/projects/EV-Smart-Management-System && source .venv/bin/activate && python modules/train/train_soc.py")
+        os.system(f"cd {project_root} && source .venv/bin/activate && python modules/train/train_soc.py")
         
         print("Model training completed")
         return True
@@ -247,7 +247,7 @@ def main():
     else:
         results['model_training'] = True
     
-    if results.get('braking_data', False) or results.get('soc_data', False) or results.get('model_training', False):
+    if not (results.get('braking_data', False) and results.get('soc_data', False) and results.get('model_training', False)):
         print("Skipping pipeline tests - some steps failed")
         return
     
