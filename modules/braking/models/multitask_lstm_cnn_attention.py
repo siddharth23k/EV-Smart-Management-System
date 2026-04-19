@@ -18,7 +18,7 @@ class MultitaskLSTMCNNAttention(nn.Module):
 
     def __init__(
         self,
-        input_dim: int = 3,
+        input_dim: int = 7,
         cnn_channels: int = 32,
         lstm_hidden: int = 64,
         num_lstm_layers: int = 1,
@@ -33,7 +33,6 @@ class MultitaskLSTMCNNAttention(nn.Module):
             nn.ReLU(),
         )
 
-        # LSTM (num_lstm_layers and dropout_rate are exposed for GA-based tuning)
         self.lstm = nn.LSTM(
             input_size=cnn_channels,
             hidden_size=lstm_hidden,
@@ -44,14 +43,17 @@ class MultitaskLSTMCNNAttention(nn.Module):
 
         self.attention = Attention(lstm_hidden)
 
-        # Classification head
         self.classifier = nn.Sequential(
             nn.Linear(lstm_hidden, 64),
             nn.ReLU(),
             nn.Linear(64, 3),
         )
 
-        # Regression head
+        self.regressor = nn.Sequential(
+            nn.Linear(lstm_hidden, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1),
+        )
         self.regressor = nn.Sequential(
             nn.Linear(lstm_hidden, 64),
             nn.ReLU(),
@@ -61,7 +63,6 @@ class MultitaskLSTMCNNAttention(nn.Module):
     # x: (batch, seq_len, features)
     def forward(self, x):
 
-        # CNN expects (batch, channels, seq_len)
         x = x.transpose(1, 2)
         x = self.cnn(x)
         x = x.transpose(1, 2)

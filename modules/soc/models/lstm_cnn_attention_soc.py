@@ -1,20 +1,14 @@
-# improvement over the base paper: LSTM + CNN + Attention → SOC regression
-# Same architecture as braking module, adapted for SOC estimation
-
-
 import os
 import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
-
 class LSTMCNNAttentionSoC(nn.Module):
     def __init__(self, input_dim=3, cnn_channels=64,
                  lstm_hidden=128, num_lstm_layers=2, dropout=0.2):
         super().__init__()
 
-        # CNN: local pattern extraction
         self.cnn = nn.Sequential(
             nn.Conv1d(input_dim, cnn_channels, kernel_size=3, padding=1),
             nn.BatchNorm1d(cnn_channels),
@@ -22,7 +16,6 @@ class LSTMCNNAttentionSoC(nn.Module):
             nn.Dropout(dropout),
         )
 
-        # LSTM: temporal feature extraction
         self.lstm = nn.LSTM(
             input_size=cnn_channels,
             hidden_size=lstm_hidden,
@@ -31,27 +24,22 @@ class LSTMCNNAttentionSoC(nn.Module):
             dropout=dropout if num_lstm_layers > 1 else 0.0,
         )
 
-        # Temporal attention
         self.attn_fc = nn.Linear(lstm_hidden, 1)
 
-        # Regression head
         self.head = nn.Sequential(
             nn.Linear(lstm_hidden, 64), nn.ReLU(),
             nn.Dropout(dropout), nn.Linear(64, 1), nn.Sigmoid(),
         )
 
     def forward(self, x):
-        # x: (batch, seq_len, input_dim)
-        # CNN expects (batch, channels, seq_len)
-        c = self.cnn(x.permute(0, 2, 1))           # (batch, cnn_ch, seq)
-        c = c.permute(0, 2, 1)                      # (batch, seq, cnn_ch)
+        c = self.cnn(x.permute(0, 2, 1))
+        c = c.permute(0, 2, 1)
 
-        h, _ = self.lstm(c)                         # (batch, seq, hidden)
+        h, _ = self.lstm(c)
 
-        # Attention
-        scores  = self.attn_fc(h)                   # (batch, seq, 1)
-        weights = torch.softmax(scores, dim=1)      # (batch, seq, 1)
-        context = (weights * h).sum(dim=1)          # (batch, hidden)
+        scores  = self.attn_fc(h)
+        weights = torch.softmax(scores, dim=1)
+        context = (weights * h).sum(dim=1)
 
         return self.head(context).squeeze(-1)
 
@@ -81,6 +69,7 @@ def train_soc_model(
         tloss = 0.0
         for xb, yb in train_loader:
             xb, yb = xb.to(device), yb.to(device)
+
             optimizer.zero_grad()
             loss = criterion(model(xb), yb)
             loss.backward()
@@ -131,10 +120,10 @@ def evaluate_soc_model(model, X_test, y_test, label="LSTM+CNN+Attention SOC", de
     rmse = np.sqrt(np.mean((preds - y_test) ** 2))
     mae  = np.mean(np.abs(preds - y_test))
     mape = np.mean(np.abs((preds - y_test) / (y_test + 1e-8))) * 100
-    print(f"\n── {label} ──")
-    print(f"Test RMSE : {rmse:.4f}")
-    print(f"Test MAE  : {mae:.4f}")
-    print(f"Test MAPE : {mape:.2f}%")
+    print(f"\n{label}")
+    print(f"Test RMSE: {rmse:.4f}")
+    print(f"Test MAE: {mae:.4f}")
+    print(f"Test MAPE: {mape:.2f}%")
     return {"rmse": float(rmse), "mae": float(mae), "mape": float(mape), "preds": preds}
 
 

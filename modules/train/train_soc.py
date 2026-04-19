@@ -15,7 +15,7 @@ sys.path.append(str(project_root))
 
 from shared.config import get_config
 from shared.train_utils import set_seed, create_data_loaders, EarlyStopper, MetricsTracker
-from modules.soc.models.lstm_soc import LSTMSoC as LSTMSOC
+from shared.dataset_loader import get_dataset_loader
 from modules.soc.models.lstm_cnn_attention_soc import LSTMCNNAttentionSoC, train_soc_model, evaluate_soc_model
 
 
@@ -28,14 +28,13 @@ def train_lstm_baseline(X_train, y_train, X_val, y_val, device, config=None):
         device = torch.device("cuda")
     else:
         device = torch.device("cpu") 
-    """Train baseline LSTM model for SOC prediction."""
-    print("Training Baseline LSTM SOC Model...")
+    print("Training baseline SoC model...")
     
-    # Check if LSTM SOC model exists, if not create a simple one
+    best_val_loss = float('inf')
+    
     try:
         model = LSTMSOC()
     except:
-        # Create a simple LSTM model if LSTMSOC doesn't exist
         class SimpleLSTMSOC(nn.Module):
             def __init__(self, input_dim=3, hidden_dim=64, num_layers=2):
                 super().__init__()
@@ -50,7 +49,6 @@ def train_lstm_baseline(X_train, y_train, X_val, y_val, device, config=None):
             
             def forward(self, x):
                 lstm_out, _ = self.lstm(x)
-                # Use last time step
                 out = self.fc(lstm_out[:, -1, :])
                 return out.squeeze(-1)
         
@@ -58,37 +56,24 @@ def train_lstm_baseline(X_train, y_train, X_val, y_val, device, config=None):
     
     model = model.to(device)
     
-    # Convert to tensors
     train_dataset = TensorDataset(
-        torch.tensor(X_train, dtype=torch.float32),
-        torch.tensor(y_train, dtype=torch.float32)
+        torch.from_numpy(X_train).float(),
+        torch.from_numpy(y_train).float()
     )
     val_dataset = TensorDataset(
-        torch.tensor(X_val, dtype=torch.float32),
-        torch.tensor(y_val, dtype=torch.float32)
+        torch.from_numpy(X_val).float(),
+        torch.from_numpy(y_val).float()
     )
     
-    # Get training config
-    training_config = config.get_training_config() if config else {}
-    batch_size = training_config.get('batch_size', 32)
-    learning_rate = training_config.get('learning_rate', 0.001)
-    epochs = training_config.get('epochs.soc_baseline', 2)
-    patience = training_config.get('patience', 2)
-    
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     
-    best_val_loss = float('inf')
-    wait = 0
-    
-    for epoch in range(epochs):
+    for epoch in range(3):
         model.train()
         train_loss = 0
-        for batch_x, batch_y in train_loader:
-            batch_x, batch_y = batch_x.to(device), batch_y.to(device)
+        for i in range(0, len(X_train), 32):
+            batch_x = torch.from_numpy(X_train[i:i+32]).float().to(device)
+            batch_y = torch.from_numpy(y_train[i:i+32]).float().to(device)
             
             optimizer.zero_grad()
             outputs = model(batch_x)
@@ -98,36 +83,29 @@ def train_lstm_baseline(X_train, y_train, X_val, y_val, device, config=None):
             
             train_loss += loss.item()
         
-        # Validation
+        print(f"Epoch {epoch+1}, Loss: {train_loss/len(X_train):.4f}")
+        
         model.eval()
-        val_loss = 0
-        predictions = []
-        targets = []
-        
+        val_predictions = []
+        val_targets = []
         with torch.no_grad():
-            for batch_x, batch_y in val_loader:
-                batch_x, batch_y = batch_x.to(device), batch_y.to(device)
+            for i in range(0, len(X_val), 32):
+                batch_x = torch.from_numpy(X_val[i:i+32]).float().to(device)
+                batch_y = torch.from_numpy(y_val[i:i+32]).float().to(device)
                 outputs = model(batch_x)
-                loss = criterion(outputs, batch_y)
-                val_loss += loss.item()
-                
-                predictions.extend(outputs.cpu().numpy())
-                targets.extend(batch_y.cpu().numpy())
+                val_predictions.extend(outputs.cpu().numpy())
+                val_targets.extend(batch_y.cpu().numpy())
         
-        val_loss /= len(val_loader)
-        train_loss /= len(train_loader)
-        
-        val_rmse = np.sqrt(mean_squared_error(targets, predictions))
-        val_mae = mean_absolute_error(targets, predictions)
+        val_rmse = np.sqrt(mean_squared_error(val_targets, val_predictions))
+        val_mae = mean_absolute_error(val_targets, val_predictions)
+        val_loss = train_loss / len(X_train)
         
         if epoch % 10 == 0:
             print(f"Epoch {epoch}: Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}, Val RMSE: {val_rmse:.4f}")
         
-        # Early stopping
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             wait = 0
-            # Save best model
             paths = config.get_paths_config()
             model_path = paths['models']['soc']
             os.makedirs(model_path, exist_ok=True)
@@ -138,7 +116,7 @@ def train_lstm_baseline(X_train, y_train, X_val, y_val, device, config=None):
                 print(f"Early stopping at epoch {epoch}")
                 break
     
-    print("Baseline LSTM SOC model training complete!")
+    print("Baseline LSTM SoC model training complete!")
     return model
 
 
@@ -150,10 +128,8 @@ def main():
     
     args = parser.parse_args()
     
-    # Initialize config
     config = get_config()
     
-    # Set device
     if args.device == "auto":
         device = config.get_device()
     else:
@@ -161,23 +137,26 @@ def main():
     
     print(f"Using device: {device}")
     
-    # Set seed for reproducibility
     set_seed(config.get('system.seed', 42))
     
-    # Load datasets
     try:
-        print("Loading SOC datasets...")
-        paths = config.get_paths_config()
-        data_path = paths['data']['soc']
-        data_config = config.get_data_config('soc')
-        subset_size = data_config.get('subset_size', 5000)
+        print("Loading SoC datasets...")
+        dataset_loader = get_dataset_loader()
+        dataset_info = dataset_loader.get_dataset_info('soc')
         
-        X_train = np.load(os.path.join(data_path, "X_train_soc.npy"))[:subset_size]
-        y_train = np.load(os.path.join(data_path, "y_train_soc.npy"))[:subset_size]
-        X_val = np.load(os.path.join(data_path, "X_val_soc.npy"))[:subset_size//5]
-        y_val = np.load(os.path.join(data_path, "y_val_soc.npy"))[:subset_size//5]
-        X_test = np.load(os.path.join(data_path, "X_test_soc.npy"))[:subset_size//5]
-        y_test = np.load(os.path.join(data_path, "y_test_soc.npy"))[:subset_size//5]
+        print(f"Using {dataset_info['source']} dataset")
+        print(f"Dataset info: {dataset_info}")
+        
+        X_train, X_val, X_test, y_train, y_val, y_test = dataset_loader.load_soc_dataset()
+        
+        subset_size = min(5000, len(X_train))
+        if len(X_train) > subset_size:
+            X_train = X_train[:subset_size]
+            y_train = y_train[:subset_size]
+            X_val = X_val[:subset_size//5]
+            y_val = y_val[:subset_size//5]
+            X_test = X_test[:subset_size//5]
+            y_test = y_test[:subset_size//5]
         
         print(f"Training data shape: {X_train.shape}")
         print(f"Training labels shape: {y_train.shape}")
@@ -193,7 +172,6 @@ def main():
     if args.baseline or (not args.cnn):
         baseline_model = train_lstm_baseline(X_train, y_train, X_val, y_val, device, config)
         
-        # Evaluate baseline model
         baseline_model.eval()
         with torch.no_grad():
             test_predictions = baseline_model(torch.tensor(X_test, dtype=torch.float32).to(device)).cpu().numpy()
@@ -206,9 +184,13 @@ def main():
     
     if args.cnn or (not args.baseline):
         print("\nTraining LSTM+CNN+Attention SOC Model...")
+        
+        best_val_loss = float('inf')
+        
+        num_classes = len(np.unique(y_train))
+        
         cnn_model = LSTMCNNAttentionSoC()
         
-        # Train CNN model using training loop similar to baseline
         train_loader = DataLoader(TensorDataset(
             torch.tensor(X_train, dtype=torch.float32),
             torch.tensor(y_train, dtype=torch.float32)
@@ -221,11 +203,10 @@ def main():
         criterion = nn.MSELoss()
         optimizer = torch.optim.Adam(cnn_model.parameters(), lr=0.001)
         
-        best_val_loss = float('inf')
         patience = 2
         wait = 0
         
-        for epoch in range(2):  # Fast training
+        for epoch in range(2):
             cnn_model.train()
             train_loss = 0
             for batch_x, batch_y in train_loader:
@@ -239,7 +220,6 @@ def main():
                 
                 train_loss += loss.item()
             
-            # Validation
             cnn_model.eval()
             val_loss = 0
             with torch.no_grad():
@@ -252,11 +232,9 @@ def main():
             val_loss /= len(val_loader)
             train_loss /= len(train_loader)
             
-            # Early stopping
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
                 wait = 0
-                # Save best model
                 paths = config.get_paths_config()
                 model_path = paths['models']['soc']
                 os.makedirs(model_path, exist_ok=True)
@@ -267,10 +245,11 @@ def main():
                     print(f"Early stopping at epoch {epoch}")
                     break
         
-        # Evaluate CNN model
-        cnn_results = evaluate_soc_model(cnn_model, X_test, y_test, device=device)
+        X_test_float32 = X_test.astype(np.float32)
+        y_test_float32 = y_test.astype(np.float32)
+        cnn_results = evaluate_soc_model(cnn_model, X_test_float32, y_test_float32, device=device)
     
-    print("All SOC training completed!")
+    print("All SoC training completed!")
 
 
 if __name__ == "__main__":

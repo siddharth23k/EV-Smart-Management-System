@@ -1,13 +1,11 @@
 """
 Enhanced EV Smart Management System Streamlit UI
-Integrates Braking Intention + SoC Prediction with all improvements
 """
 
 import sys
 import os
 from pathlib import Path
 
-# Add project root to path for absolute imports
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 
@@ -22,9 +20,8 @@ import time
 from shared.config import get_config
 from shared.enhanced_utils import EnhancedEVPipeline
 
-# Synthetic data generator
 def generate_driving_sequence(seq_len=75, init_speed=60, aggressiveness=0.5, noise_level=0.05):
-    """Generate driving sequence for braking prediction."""
+    """Generate driving sequence for braking prediction with 7 features."""
     speed = init_speed
     brake = 0.0
     data = []
@@ -34,13 +31,18 @@ def generate_driving_sequence(seq_len=75, init_speed=60, aggressiveness=0.5, noi
         brake += np.random.normal(0, noise_level)
         brake = np.clip(brake, 0, 1)
 
-        accel = -brake * np.random.uniform(2.0, 3.5)
-        accel += np.random.normal(0, noise_level)
-
-        speed += accel * 0.1
+        # Generate 7 features: acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, speed
+        accel_x = -brake * np.random.uniform(2.0, 3.5) + np.random.normal(0, noise_level)
+        accel_y = np.random.normal(0, noise_level)
+        accel_z = np.random.normal(0, noise_level)
+        gyro_x = np.random.normal(0, noise_level * 0.5)
+        gyro_y = np.random.normal(0, noise_level * 0.5)
+        gyro_z = np.random.normal(0, noise_level * 0.5)
+        
+        speed += accel_x * 0.1
         speed = max(speed, 0)
 
-        data.append([speed, accel, brake])
+        data.append([accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, speed])
 
     return np.array(data, dtype=np.float32)
 
@@ -135,7 +137,6 @@ with c3:
 
 st.divider()
 
-# Scenario & Controls section
 st.subheader("Scenario & Controls")
 
 sc_col, sliders_col, run_col = st.columns([1.1, 2.1, 0.8])
@@ -146,6 +147,7 @@ with sc_col:
         "Choose a predefined driving scenario:",
         list(SCENARIOS.keys())
     )
+
     battery_scenario = st.selectbox(
         "Choose battery scenario:",
         list(BATTERY_SCENARIOS.keys())
@@ -154,7 +156,6 @@ with sc_col:
 with sliders_col:
     st.markdown("### **Input Controls**")
     
-    # Driving controls
     st.markdown("**Driving Parameters**")
     if SCENARIOS[scenario]:
         init_speed, aggressiveness, noise_level = SCENARIOS[scenario]
@@ -376,7 +377,6 @@ if run:
             except Exception as e:
                 st.error(f"Prediction failed: {e}")
 
-# Footer
 st.markdown("---")
 st.markdown(
     """

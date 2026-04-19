@@ -14,24 +14,42 @@ sys.path.append(str(project_root))
 
 from shared.config import get_config
 from shared.train_utils import set_seed, create_data_loaders, EarlyStopper, MetricsTracker
-from modules.braking.models.lstm_cnn_attention import LSTMCNNAttention
+from shared.dataset_loader import get_dataset_loader
 from modules.braking.models.multitask_lstm_cnn_attention import MultitaskLSTMCNNAttention
 from modules.braking.models.genetic_algorithm_optimizer import GeneticAlgorithmOptimizer
 
 
 def train_baseline_model(X_train, y_train, X_val, y_val, device="cpu", config=None):
-    print("Training Baseline LSTM-CNN-Attention Model...")
+    print("Training baseline model...")
     
-    model = LSTMCNNAttention()
+    unique_classes = len(np.unique(y_train))
+    if unique_classes == 1:
+        print("Error: Only one class in dataset.")
+        return None
+    
+    num_classes = len(np.unique(y_train))
+    
+    model = MultitaskLSTMCNNAttention(
+        input_dim=X_train.shape[2], 
+        lstm_hidden=64, 
+        num_lstm_layers=1,
+        cnn_channels=32,
+        dropout_rate=0.0
+    )
+    
+    model.classifier[-1] = nn.Linear(model.classifier[-1].in_features, num_classes)
     model = model.to(device)
     
+    y_train_int = y_train.astype(np.int64)
+    y_val_int = y_val.astype(np.int64)
+    
     train_dataset = TensorDataset(
-        torch.tensor(X_train, dtype=torch.float32),
-        torch.tensor(y_train, dtype=torch.long)
+        torch.from_numpy(X_train).float(),
+        torch.from_numpy(y_train_int).long()
     )
     val_dataset = TensorDataset(
-        torch.tensor(X_val, dtype=torch.float32),
-        torch.tensor(y_val, dtype=torch.long)
+        torch.from_numpy(X_val).float(),
+        torch.from_numpy(y_val_int).long()
     )
     
     training_config = config.get_training_config() if config else {}
@@ -43,7 +61,7 @@ def train_baseline_model(X_train, y_train, X_val, y_val, device="cpu", config=No
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     
     best_val_loss = float('inf')
@@ -56,8 +74,10 @@ def train_baseline_model(X_train, y_train, X_val, y_val, device="cpu", config=No
             batch_x, batch_y = batch_x.to(device), batch_y.to(device)
             
             optimizer.zero_grad()
-            outputs = model(batch_x)
-            loss = criterion(outputs, batch_y)
+            int_output, class_output = model(batch_x)
+            int_output_single = int_output[:, 0:1]
+            batch_y_float = batch_y.float().unsqueeze(1)
+            loss = criterion(int_output_single, batch_y_float)
             loss.backward()
             optimizer.step()
             
@@ -71,13 +91,18 @@ def train_baseline_model(X_train, y_train, X_val, y_val, device="cpu", config=No
         with torch.no_grad():
             for batch_x, batch_y in val_loader:
                 batch_x, batch_y = batch_x.to(device), batch_y.to(device)
-                outputs = model(batch_x)
-                loss = criterion(outputs, batch_y)
+                int_output, class_output = model(batch_x)
+                int_output_single = int_output[:, 0:1]
+                batch_y_float = batch_y.float().unsqueeze(1)
+                loss = criterion(int_output_single, batch_y_float)
                 val_loss += loss.item()
                 
-                _, predicted = torch.max(outputs.data, 1)
+                predictions = int_output_single.squeeze()
+                threshold = 0.5
+                predicted_binary = (predictions > threshold).long()
+                target_binary = batch_y
                 total += batch_y.size(0)
-                correct += (predicted == batch_y).sum().item()
+                correct += (predicted_binary == target_binary).sum().item()
         
         val_loss /= len(val_loader)
         train_loss /= len(train_loader)
@@ -86,11 +111,9 @@ def train_baseline_model(X_train, y_train, X_val, y_val, device="cpu", config=No
         if epoch % 10 == 0:
             print(f"Epoch {epoch}: Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
         
-        # Early stopping
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             wait = 0
-            # Save best model
             paths = config.get_paths_config()
             model_path = paths['models']['braking']
             os.makedirs(model_path, exist_ok=True)
@@ -101,18 +124,27 @@ def train_baseline_model(X_train, y_train, X_val, y_val, device="cpu", config=No
                 print(f"Early stopping at epoch {epoch}")
                 break
     
-    print(" Baseline model training complete!")
+    print("Baseline model training complete!")
     return model
 
 
 def train_multitask_model(X_train, y_class_train, y_int_train, X_val, y_class_val, y_int_val, device="cpu", config=None):
     """Train multitask model with both classification and regression."""
-    print("Training Multitask LSTM-CNN-Attention Model...")
+    print("Training multitask model...")
     
-    model = MultitaskLSTMCNNAttention()
+    model = MultitaskLSTMCNNAttention(input_dim=X_train.shape[2])
     model = model.to(device)
     
-    # Convert to tensors
+    if len(y_int_train) < len(y_class_train):
+        y_int_train_padded = np.zeros(len(y_class_train))
+        y_int_train_padded[:len(y_int_train)] = y_int_train
+        y_int_train = y_int_train_padded
+    
+    if len(y_int_val) < len(y_class_val):
+        y_int_val_padded = np.zeros(len(y_class_val))
+        y_int_val_padded[:len(y_int_val)] = y_int_val
+        y_int_val = y_int_val_padded
+    
     train_dataset = TensorDataset(
         torch.tensor(X_train, dtype=torch.float32),
         torch.tensor(y_class_train, dtype=torch.long),
@@ -150,14 +182,14 @@ def train_multitask_model(X_train, y_class_train, y_int_train, X_val, y_class_va
             optimizer.zero_grad()
             cls_outputs, int_outputs = model(batch_x)
             
-            loss_cls = criterion_cls(cls_outputs, batch_y_cls)
-            loss_reg = criterion_reg(int_outputs, batch_y_int)
-            loss = 0.7 * loss_cls + 0.3 * loss_reg  # Weighted loss
+            cls_loss = criterion_cls(cls_outputs, batch_y_cls)
+            reg_loss = criterion_reg(int_outputs, batch_y_int)
+            total_loss = cls_loss + 0.5 * reg_loss  # Weighted loss
             
-            loss.backward()
+            total_loss.backward()
             optimizer.step()
             
-            train_loss += loss.item()
+            train_loss += total_loss.item()
         
         # Validation
         model.eval()
@@ -186,11 +218,9 @@ def train_multitask_model(X_train, y_class_train, y_int_train, X_val, y_class_va
         if epoch % 10 == 0:
             print(f"Epoch {epoch}: Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
         
-        # Early stopping
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             wait = 0
-            # Save best model
             paths = config.get_paths_config()
             model_path = paths['models']['braking']
             os.makedirs(model_path, exist_ok=True)
@@ -214,10 +244,8 @@ def main():
     
     args = parser.parse_args()
     
-    # Initialize config
     config = get_config()
     
-    # Set device
     if args.device == "auto":
         device = config.get_device()
     else:
@@ -225,45 +253,24 @@ def main():
     
     print(f"Using device: {device}")
     
-    # Set seed for reproducibility
     set_seed(config.get('system.seed', 42))
     
-    # Load datasets
     try:
-        print("Loading datasets...")
-        paths = config.get_paths_config()
-        data_path = paths['data']['braking']
+        print("Loading braking datasets...")
+        dataset_loader = get_dataset_loader()
+        dataset_info = dataset_loader.get_dataset_info('braking')
         
-        # Prioritize realistic EV simulation dataset
-        if os.path.exists(os.path.join(data_path, "X_train_realistic.npy")):
-            print("Using realistic EV simulation dataset...")
-            X_train = np.load(os.path.join(data_path, "X_train_realistic.npy"))
-            y_class_train = np.load(os.path.join(data_path, "y_class_train_realistic.npy"))
-            y_int_train = np.load(os.path.join(data_path, "y_int_train_realistic.npy"))
-            X_val = np.load(os.path.join(data_path, "X_val_realistic.npy"))
-            y_class_val = np.load(os.path.join(data_path, "y_class_val_realistic.npy"))
-            y_int_val = np.load(os.path.join(data_path, "y_int_val_realistic.npy"))
-            
-            # For baseline training, use class labels
-            y_train = y_class_train
-            y_val = y_class_val
-            print("Realistic EV simulation dataset loaded")
-        else:
-            # Fallback to original hard multitask dataset
-            print("Using hard multitask dataset...")
-            X_train = np.load(os.path.join(data_path, "X_train_hard_mtl.npy"))
-            y_class_train = np.load(os.path.join(data_path, "y_class_train_hard_mtl.npy"))
-            y_int_train = np.load(os.path.join(data_path, "y_int_train_hard_mtl.npy"))
-            X_val = np.load(os.path.join(data_path, "X_val_hard_mtl.npy"))
-            y_class_val = np.load(os.path.join(data_path, "y_class_val_hard_mtl.npy"))
-            y_int_val = np.load(os.path.join(data_path, "y_int_val_hard_mtl.npy"))
-            
-            # For baseline training, use class labels
-            y_train = y_class_train
-            y_val = y_class_val
-            print("Hard multitask dataset loaded")
+        print(f"Using {dataset_info['source']} dataset")
+        print(f"Dataset info: {dataset_info}")
         
-        # Ensure intensity labels are available for multitask training
+        (X_train, X_val, X_test, 
+         y_int_train, y_int_val, y_int_test,
+         y_class_train, y_class_val, y_class_test) = dataset_loader.load_braking_dataset()
+        
+        y_train = y_class_train
+        y_val = y_class_val
+        print("Braking dataset loaded successfully")
+        
         if y_int_train is None or y_int_val is None:
             print("Intensity labels not found for multitask training")
         
@@ -275,20 +282,23 @@ def main():
         print("Please run dataset generation first!")
         return
     
-    # Train models based on arguments
     if args.baseline or (not args.multitask and not args.ga):
-        train_baseline_model(X_train, y_train, X_val, y_val, device, config)
+        result = train_baseline_model(X_train, y_train, X_val, y_val, device, config)
+        if result is None:
+            print("Baseline training failed due to single-class dataset.")
+            return
     
     if args.multitask and y_int_train is not None:
         train_multitask_model(X_train, y_train, y_int_train, X_val, y_val, y_int_val, device, config)
     elif args.multitask:
-        print("Multitask training requires intensity labels (y_int_*.npy files)")
+        print("Multitask training requires intensity labels")
     
     if args.ga:
         print("Running Genetic Algorithm Optimization...")
-        # Change to braking models directory for GA
         os.chdir("modules/braking/models")
-        run_ga_optimization()
+        from modules.braking.models.genetic_algorithm_optimizer import GeneticAlgorithmOptimizer
+        ga_optimizer = GeneticAlgorithmOptimizer()
+        ga_optimizer.run_optimization()
         os.chdir("../../../")
     
     print("All training completed!")

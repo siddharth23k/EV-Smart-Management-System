@@ -620,10 +620,15 @@ def test_cognitive_system():
     driver_id = "test_driver_001"
     
     for i in range(5):
-        # Generate sample driving window
-        driving_window = np.random.randn(75, 3)
-        driving_window[:, 0] = np.abs(driving_window[:, 0]) * 50 + 30  # Speed
-        driving_window[:, 2] = np.clip(np.random.rand(75) * 0.5, 0, 1)  # Brake pedal
+        # Generate sample driving window with 7 features (acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, speed)
+        driving_window = np.random.randn(75, 7)
+        driving_window[:, 0] = np.abs(driving_window[:, 0]) * 2 + 0.5  # acc_x
+        driving_window[:, 1] = np.abs(driving_window[:, 1]) * 2 + 0.5  # acc_y
+        driving_window[:, 2] = np.abs(driving_window[:, 2]) * 2 + 0.5  # acc_z
+        driving_window[:, 3] = np.random.randn(75) * 0.5  # gyro_x
+        driving_window[:, 4] = np.random.randn(75) * 0.5  # gyro_y
+        driving_window[:, 5] = np.random.randn(75) * 0.5  # gyro_z
+        driving_window[:, 6] = np.abs(driving_window[:, 6]) * 50 + 30  # Speed
         
         braking_class = np.random.randint(0, 3)
         intensity = np.random.rand()

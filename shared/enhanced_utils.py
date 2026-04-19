@@ -9,7 +9,6 @@ import torch.nn as nn
 from typing import Dict, List, Tuple, Optional, Union, Any
 from pathlib import Path
 
-# Add project root to path for absolute imports
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 
@@ -18,7 +17,6 @@ from modules.braking.models.multitask_lstm_cnn_attention import MultitaskLSTMCNN
 from modules.soc.models.lstm_cnn_attention_soc import LSTMCNNAttentionSoC
 from shared.cognitive_manager import CognitiveEnergyManager
 
-# Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -32,26 +30,21 @@ class InputValidator:
     
     def validate_braking_input(self, driving_window: np.ndarray) -> bool:
         try:
-            # Check type
             if not isinstance(driving_window, np.ndarray):
                 raise ValueError("Driving window must be numpy array")
             
-            # Check shape
             expected_shape = (self.braking_config.get('window_size', 75), 
-                           self.braking_config.get('input_dim', 3))
+                           self.braking_config.get('input_dim', 7))
             if driving_window.shape != expected_shape:
                 raise ValueError(f"Driving window shape must be {expected_shape}, got {driving_window.shape}")
             
-            # Check data type
             if driving_window.dtype != np.float32:
                 logger.warning(f"Driving window dtype is {driving_window.dtype}, converting to float32")
                 driving_window = driving_window.astype(np.float32)
             
-            # Check for NaN or Inf
             if np.any(np.isnan(driving_window)) or np.any(np.isinf(driving_window)):
                 raise ValueError("Driving window contains NaN or Inf values")
             
-            # Check reasonable ranges
             if np.abs(driving_window).max() > 1000:
                 logger.warning("Driving window contains very large values, consider normalization")
             
@@ -63,28 +56,22 @@ class InputValidator:
     
     def validate_soc_input(self, battery_window: np.ndarray) -> bool:
         try:
-            # Check type
             if not isinstance(battery_window, np.ndarray):
                 raise ValueError("Battery window must be numpy array")
             
-            # Check shape
             expected_shape = (self.soc_config.get('window_size', 50), 
                            self.soc_config.get('input_dim', 3))
             if battery_window.shape != expected_shape:
                 raise ValueError(f"Battery window shape must be {expected_shape}, got {battery_window.shape}")
             
-            # Check data type
             if battery_window.dtype != np.float32:
                 logger.warning(f"Battery window dtype is {battery_window.dtype}, converting to float32")
                 battery_window = battery_window.astype(np.float32)
             
-            # Check for NaN or Inf
             if np.any(np.isnan(battery_window)) or np.any(np.isinf(battery_window)):
                 raise ValueError("Battery window contains NaN or Inf values")
             
-            # Check reasonable ranges for battery data (normalized)
-            # After normalization, values should be roughly in range [-3, 3]
-            if battery_window.shape[1] >= 1:  # If voltage channel exists
+            if battery_window.shape[1] >= 1:
                 voltage = battery_window[:, 0]
                 if np.any(np.abs(voltage) > 5):
                     logger.warning("Normalized voltage values seem unusual (abs > 5)")
@@ -114,19 +101,10 @@ class ModelQuantizer:
     
     @staticmethod
     def quantize_model(model: nn.Module, example_input: torch.Tensor) -> nn.Module:
-        # Quantize PyTorch model for faster inference
         try:
-            # Set model to evaluation mode
-            model.eval()
-            
-            # Create quantized model
             quantized_model = torch.quantization.quantize_dynamic(
-                model, 
-                {nn.Linear, nn.LSTM, nn.Conv1d}, 
-                dtype=torch.qint8
+                model, {nn.Linear: "dynamic", nn.LSTM: "dynamic", nn.Conv1d: "dynamic"}
             )
-            
-            logger.info("Model quantized successfully")
             return quantized_model
             
         except Exception as e:
@@ -184,27 +162,24 @@ class EnhancedEVPipeline:
             raise FileNotFoundError(f"Braking model not found: {model_path}")
         
         try:
-            # Load hyperparameters if available
             if os.path.exists(hp_path):
                 with open(hp_path) as f:
                     hp = json.load(f)["hyperparams"]
-                # Use parameters that match the saved model architecture
                 self.braking_model = MultitaskLSTMCNNAttention(
-                    input_dim=3,
+                    input_dim=7,
                     cnn_channels=32,  
                     lstm_hidden=hp.get("lstm_hidden_size", 64),
                     num_lstm_layers=1, 
                     dropout_rate=0.0, 
                 )
             else:
-                # Use default configuration
                 braking_config = self.config.get_braking_model_config()
                 self.braking_model = MultitaskLSTMCNNAttention(
-                    input_dim=braking_config.get('input_dim', 3),
+                    input_dim=braking_config.get('input_dim', 7),
                     cnn_channels=braking_config.get('cnn_channels', 32),
                     lstm_hidden=braking_config.get('lstm_hidden', 64),
                     num_lstm_layers=braking_config.get('num_lstm_layers', 1),
-                    dropout_rate=braking_config.get('dropout_rate', 0.0),
+                    dropout_rate=braking_config.get('dropout_rate', 0.0), 
                 )
             
             # Load state dict
@@ -213,9 +188,8 @@ class EnhancedEVPipeline:
             self.braking_model.to(self.device)
             self.braking_model.eval()
             
-            # Quantize if enabled
             if self.inference_config.get('quantization', True):
-                example_input = torch.randn(1, 75, 3).to(self.device)
+                example_input = torch.randn(1, 75, 7).to(self.device)
                 self.braking_model_quantized = self.quantizer.quantize_model(
                     self.braking_model, example_input
                 )
@@ -232,8 +206,6 @@ class EnhancedEVPipeline:
             raise FileNotFoundError(f"SoC model not found: {model_path}")
         
         try:
-            # Use parameters that match the saved model architecture
-            # The saved model has different architecture than config defaults
             self.soc_model = LSTMCNNAttentionSoC(
                 input_dim=3,
                 cnn_channels=64,  
@@ -242,13 +214,11 @@ class EnhancedEVPipeline:
                 dropout=0.2,  
             )
             
-            # Load state dict
             state_dict = torch.load(model_path, map_location=self.device)
             self.soc_model.load_state_dict(state_dict)
             self.soc_model.to(self.device)
             self.soc_model.eval()
             
-            # Quantize if enabled
             if self.inference_config.get('quantization', True):
                 example_input = torch.randn(1, 50, 3).to(self.device)
                 self.soc_model_quantized = self.quantizer.quantize_model(
@@ -263,7 +233,6 @@ class EnhancedEVPipeline:
     def run_single(self, driving_window: np.ndarray, battery_window: np.ndarray, 
                   current_soc: float) -> Dict[str, Any]:
         """Run single inference with validation."""
-        # Validate inputs
         if self.inference_config.get('validate_inputs', True):
             if not self.validator.validate_braking_input(driving_window):
                 raise ValueError("Invalid braking input")
@@ -272,26 +241,20 @@ class EnhancedEVPipeline:
             if not self.validator.validate_soc_value(current_soc):
                 raise ValueError("Invalid current SoC value")
         
-        # Convert to tensors
         driving_tensor = torch.tensor(driving_window, dtype=torch.float32).unsqueeze(0).to(self.device)
         battery_tensor = torch.tensor(battery_window, dtype=torch.float32).unsqueeze(0).to(self.device)
         
-        # Run inference
         with torch.no_grad():
-            # Use quantized models if available
             braking_model = self.braking_model_quantized or self.braking_model
             soc_model = self.soc_model_quantized or self.soc_model
             
-            # Braking prediction
             class_logits, intensity = braking_model(driving_tensor)
             class_pred = torch.argmax(class_logits, dim=1).item()
             intensity_val = torch.sigmoid(intensity).item()
             
-            # SoC prediction
             soc_pred = soc_model(battery_tensor).item()
-            soc_pred = np.clip(soc_pred, 0, 1)  # Ensure valid range
+            soc_pred = np.clip(soc_pred, 0, 1)
         
-        # Process results
         return self._process_results(class_pred, intensity_val, soc_pred, current_soc)
     
     def run_batch(self, driving_windows: List[np.ndarray], battery_windows: List[np.ndarray], 
@@ -341,7 +304,6 @@ class EnhancedEVPipeline:
     def run_with_cognitive(self, driving_window: np.ndarray, battery_window: np.ndarray, 
                            current_soc: float, driver_id: str = "default_driver") -> Dict[str, Any]:
         """Run inference with cognitive driver profiling."""
-        # Validate inputs
         if self.inference_config.get('validate_inputs', True):
             if not self.validator.validate_braking_input(driving_window):
                 raise ValueError("Invalid braking input")
@@ -350,22 +312,18 @@ class EnhancedEVPipeline:
             if not self.validator.validate_soc_value(current_soc):
                 raise ValueError("Invalid current SoC value")
         
-        # Get basic predictions first
         basic_result = self.run_single(driving_window, battery_window, current_soc)
         
-        # Extract braking prediction for cognitive processing
         braking_class = basic_result['braking']['class_id']
         braking_intensity = basic_result['braking']['intensity']
         
-        # Prepare vehicle state for cognitive processing
         vehicle_state = {
-            'battery_temp': 25.0,  # Could be extracted from battery window
-            'motor_temp': 30.0,   # Could be estimated from driving patterns
+            'battery_temp': 25.0,
+            'motor_temp': 30.0,
             'avg_speed': np.mean(driving_window[:, 0]),
             'base_regen_efficiency': self.performance_config.get('regen_efficiency', 0.65)
         }
         
-        # Process with cognitive manager
         try:
             cognitive_result = self.cognitive_manager.process_driving_event(
                 driver_id=driver_id,
@@ -376,7 +334,6 @@ class EnhancedEVPipeline:
                 vehicle_state=vehicle_state
             )
             
-            # Merge basic results with cognitive insights
             enhanced_result = basic_result.copy()
             enhanced_result['cognitive'] = {
                 'driver_profile': cognitive_result['driver_profile'],
@@ -386,15 +343,12 @@ class EnhancedEVPipeline:
                 'recommendations': cognitive_result['recommendations'],
                 'cognitive_insights': cognitive_result['cognitive_insights']
             }
-            
-            # Update SoC with cognitive adjustment
-            if cognitive_result['prediction_confidence'] > 0.7:  # High confidence
+            if cognitive_result['prediction_confidence'] > 0.7:
                 enhanced_result['soc']['updated'] = np.clip(
                     current_soc + cognitive_result['soc_adjustment'], 0, 1
                 )
                 enhanced_result['soc']['delta'] = enhanced_result['soc']['updated'] - current_soc
             
-            # Update system action based on cognitive insights
             driver_style = cognitive_result['driver_profile']['driving_style']
             if driver_style == 'eco':
                 enhanced_result['system_action'] = "COGNITIVE_ECO: Optimized regenerative braking for efficiency"
@@ -403,7 +357,7 @@ class EnhancedEVPipeline:
             elif driver_style == 'conservative':
                 enhanced_result['system_action'] = "COGNITIVE_SAFE: Battery-protective regenerative braking"
             else:
-                enhanced_result['system_action'] = enhanced_result['system_action']  # Keep original
+                enhanced_result['system_action'] = enhanced_result['system_action']
             
             logger.info(f"Cognitive processing completed for driver {driver_id}")
             return enhanced_result
@@ -432,15 +386,12 @@ class EnhancedEVPipeline:
     def _process_results(self, class_pred: int, intensity_val: float, 
                        soc_pred: float, current_soc: float) -> Dict[str, Any]:
         """Process inference results into unified output."""
-        # Map class to label
         class_labels = ["Light Braking", "Normal Braking", "Emergency Braking"]
         class_label = class_labels[class_pred]
         
-        # Calculate energy recovery
         regen_efficiency = self.performance_config.get('regen_efficiency', 0.65)
         energy_recovered = intensity_val * regen_efficiency
         
-        # Update SoC
         soc_update_rate = self.performance_config.get('soc_update_rate', 1.0)
         updated_soc = np.clip(current_soc + energy_recovered * soc_update_rate, 0, 1)
         soc_delta = updated_soc - current_soc
@@ -497,13 +448,16 @@ class EnhancedEVPipeline:
             return self._generate_batch_samples(num_samples)
     
     def _generate_single_sample(self) -> Tuple[np.ndarray, np.ndarray]:
-        # Driving window: (75, 3) - speed, acceleration, brake pedal
+        # Driving window: (75, 7) - acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, speed
         t = np.linspace(0, 1, 75)
+        acc_x = np.random.normal(0, 0.5, 75)
+        acc_y = np.random.normal(0, 0.5, 75)
+        acc_z = np.random.normal(0, 0.5, 75)
+        gyro_x = np.random.normal(0, 0.1, 75)
+        gyro_y = np.random.normal(0, 0.1, 75)
+        gyro_z = np.random.normal(0, 0.1, 75)
         speed = 60 - 30 * t + np.random.normal(0, 0.5, 75)
-        accel = -5 * t + np.random.normal(0, 0.1, 75)
-        brake_pedal = 0.3 + 0.5 * t + np.random.normal(0, 0.02, 75)
-        brake_pedal = np.clip(brake_pedal, 0, 1)
-        driving_window = np.stack([speed, accel, brake_pedal], axis=1).astype(np.float32)
+        driving_window = np.stack([acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, speed], axis=1).astype(np.float32)
         
         # Normalize
         mean = driving_window.mean(axis=0)

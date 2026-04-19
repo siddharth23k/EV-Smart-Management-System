@@ -5,25 +5,28 @@ import numpy as np
 import torch
 from pathlib import Path
 
-# Add project root to path
 project_root = Path(__file__).parent
 sys.path.append(str(project_root))
 
 def check_data_availability():
-    print("CHECKING DATA AVAILABILITY----------------")
+    print("Checking data availability...")
+    
+    from shared.config import get_config
+    config = get_config()
+    paths = config.get_paths_config()
     
     braking_files = [
-        "modules/braking/data/X_train_realistic.npy",
-        "modules/braking/data/y_train_realistic.npy", 
-        "modules/braking/data/X_val_realistic.npy",
-        "modules/braking/data/y_val_realistic.npy"
+        os.path.join(paths['data']['braking'], 'X_train_real.npy'),
+        os.path.join(paths['data']['braking'], 'y_class_train_real.npy'), 
+        os.path.join(paths['data']['braking'], 'X_val_real.npy'),
+        os.path.join(paths['data']['braking'], 'y_class_val_real.npy')
     ]
     
     soc_files = [
-        "modules/soc/data/X_train_soc.npy",
-        "modules/soc/data/y_train_soc.npy",
-        "modules/soc/data/X_val_soc.npy", 
-        "modules/soc/data/y_val_soc.npy"
+        os.path.join(paths['data']['soc'], 'X_train_real.npy'),
+        os.path.join(paths['data']['soc'], 'y_train_real.npy'),
+        os.path.join(paths['data']['soc'], 'X_val_real.npy'), 
+        os.path.join(paths['data']['soc'], 'y_val_real.npy')
     ]
     
     missing_braking = [f for f in braking_files if not os.path.exists(f)]
@@ -41,87 +44,33 @@ def check_data_availability():
     return True
 
 def generate_braking_data():
-    print("GENERATING BRAKING DATASET----------------")
+    print("Generating braking dataset...")
     
     try:
-        from modules.braking.data.realistic_ev_simulation import RealisticEVSimulator
-        
-        simulator = RealisticEVSimulator()
-        
-        # Generate training data
-        print("Generating training data...")
-        X_train, y_class_train, y_int_train = simulator.generate_dataset(
-            n_samples=5000
-        )
-        
-        # Generate validation data  
-        print("Generating validation data...")
-        X_val, y_class_val, y_int_val = simulator.generate_dataset(
-            n_samples=1000
-        )
-        
-        # Save data
-        os.makedirs("modules/braking/data", exist_ok=True)
-        np.save("modules/braking/data/X_train_realistic.npy", X_train)
-        np.save("modules/braking/data/y_train_realistic.npy", y_class_train)
-        np.save("modules/braking/data/X_val_realistic.npy", X_val)
-        np.save("modules/braking/data/y_val_realistic.npy", y_class_val)
-        
-        # Save intensity data
-        np.save("modules/braking/data/y_int_train_realistic.npy", y_int_train)
-        np.save("modules/braking/data/y_int_val_realistic.npy", y_int_val)
-        
-        print("Braking dataset generated successfully")
+        from modules.braking.data.preprocess_real_data import process_all_data
+        process_all_data()
+        print("Braking dataset generated")
         return True
         
     except Exception as e:
-        print(f"Error generating braking data: {e}")
+        print(f"Error: {e}")
         return False
 
 def generate_soc_data():
-    print("GENERATING SOC DATASET----------------")
+    print("Generating SoC dataset...")
     
     try:
-        from modules.soc.data.preprocess import preprocess_nasa_data
+        from modules.soc.data.preprocess_real_data import process_all_data
+        process_all_data()
+        print("SoC dataset generated")
+        return True
         
-        # Check if NASA data exists
-        nasa_data_files = [f for f in os.listdir("modules/soc/data") if f.endswith('.csv')]
-        if len(nasa_data_files) < 10:
-            print("Insufficient NASA battery data files")
-            return False
-        
-        print(f"Found {len(nasa_data_files)} NASA data files")
-        
-        # Run preprocessing
-        print("Running preprocessing...")
-        import sys
-        sys.path.append("modules/soc/data")
-        
-        # Import and run the main function directly
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("preprocess", "modules/soc/data/preprocess.py")
-        preprocess_module = importlib.util.module_from_spec(spec)
-        
-        # Change to data directory for relative paths
-        original_cwd = os.getcwd()
-        os.chdir("modules/soc/data")
-        
-        try:
-            spec.loader.exec_module(preprocess_module)
-            os.chdir(original_cwd)
-            print("SoC dataset generated successfully")
-            return True
-        except Exception as e:
-            os.chdir(original_cwd)
-            print(f"Failed to generate SoC dataset: {e}")
-            return False
-            
     except Exception as e:
-        print(f"Error generating SoC data: {e}")
+        print(f"Error: {e}")
         return False
 
 def check_model_availability():
-    print("CHECKING MODEL AVAILABILITY----------------")
+    print("Checking model availability...")
     
     models = {
         "braking": "modules/braking/models/final_multitask_model.pth",
@@ -141,10 +90,9 @@ def check_model_availability():
     return True
 
 def train_models():
-    print("TRAINING MODELS----------------")
+    print("Training models...")
     
     try:
-        # Train braking model
         print("Training braking model...")
         os.system("cd /Users/siddh/Desktop/SID/projects/EV-Smart-Management-System && source .venv/bin/activate && python modules/train/train_braking.py")
         
@@ -160,16 +108,14 @@ def train_models():
         return False
 
 def test_enhanced_pipeline():
-    print("TESTING ENHANCED PIPELINE WITH COGNITIVE PROFILING----------------")
+    print("Testing enhanced pipeline...")
     
     try:
         from shared.enhanced_utils import EnhancedEVPipeline
         
-        # Initialize pipeline
-        print("Initializing enhanced pipeline...")
+        print("Initializing pipeline...")
         pipeline = EnhancedEVPipeline()
         
-        # Generate test data
         print("Generating test data...")
         driving_window, battery_window = pipeline.generate_sample_inputs()
         current_soc = 0.45
@@ -197,7 +143,7 @@ def test_enhanced_pipeline():
         print(f"Inference time: {cognitive_time*1000:.2f}ms")
         
         # Test batch inference
-        print("  Testing batch inference...")
+        print("Testing batch inference...")
         driving_windows, battery_windows = pipeline.generate_sample_inputs(10)
         current_socs = [0.3 + i*0.05 for i in range(10)]
         
@@ -215,7 +161,7 @@ def test_enhanced_pipeline():
         print(f"Active drivers: {summary.get('active_drivers', 0)}")
         print(f"Adaptation level: {summary.get('adaptation_level', 0):.2f}")
         
-        print("Enhanced pipeline test completed successfully")
+        print("Enhanced pipeline test completed")
         return True
         
     except Exception as e:
@@ -223,14 +169,12 @@ def test_enhanced_pipeline():
         return False
 
 def run_performance_benchmark():
-    print("RUNNING PERFORMANCE BENCHMARK----------------")
+    print("Running performance benchmark...")
     
     try:
         from shared.enhanced_utils import EnhancedEVPipeline
         
         pipeline = EnhancedEVPipeline()
-        
-        # Benchmark single inference
         print("Benchmarking single inference...")
         driving_window, battery_window = pipeline.generate_sample_inputs()
         current_soc = 0.5
@@ -247,7 +191,6 @@ def run_performance_benchmark():
         print(f"Average inference time: {avg_time:.2f}±{std_time:.2f}ms")
         print(f"Min/Max time: {min(times)*1000:.2f}/{max(times)*1000:.2f}ms")
         
-        # Benchmark batch inference
         print("Benchmarking batch inference...")
         batch_sizes = [1, 10, 50, 100]
         
@@ -255,7 +198,6 @@ def run_performance_benchmark():
             print(f"Generating {batch_size} samples...")
             driving_windows, battery_windows = pipeline.generate_sample_inputs(batch_size)
             
-            # Handle case where single sample returns arrays instead of lists
             if batch_size == 1:
                 if not isinstance(driving_windows, list):
                     driving_windows = [driving_windows]
@@ -287,59 +229,47 @@ def run_performance_benchmark():
         return False
 
 def main():
-    print("EV SMART MANAGEMENT SYSTEM - COMPLETE PIPELINE TEST----------------")
+    print("EV Smart Management System - Pipeline Test")
     
     results = {}
     
-    # Check and generate data if needed
     if not check_data_availability():
-        print("GENERATING MISSING DATASETS----------------")
-        
-        braking_success = generate_braking_data()
-        soc_success = generate_soc_data()
-        
-        results['data_generation'] = braking_success and soc_success
+        print("Generating missing datasets...")
+        results['braking_data'] = generate_braking_data()
+        results['soc_data'] = generate_soc_data()
     else:
-        results['data_generation'] = True
+        results['braking_data'] = True
+        results['soc_data'] = True
     
-    # Check and train models if needed
     if not check_model_availability():
-        print("TRAINING MISSING MODELS----------------")
-        
+        print("Training missing models...")
         results['model_training'] = train_models()
     else:
         results['model_training'] = True
     
-    # Test enhanced pipeline
-
-    print("TESTING ENHANCED PIPELINE----------------")
-
+    if results.get('braking_data', False) or results.get('soc_data', False) or results.get('model_training', False):
+        print("Skipping pipeline tests - some steps failed")
+        return
     
+    print("Testing enhanced pipeline...")
     results['enhanced_pipeline'] = test_enhanced_pipeline()
     
-    # Performance benchmark
-
-    print("PERFORMANCE BENCHMARK----------------")
-
-    
+    print("Performance benchmark...")
     results['performance'] = run_performance_benchmark()
     
-    # Summary
-
-    print("PIPELINE TEST SUMMARY----------------")
-
+    print("Pipeline test summary")
+    print(f"Data Generation: {'PASS' if results.get('braking_data', False) else 'FAIL'}")
+    print(f"Model Training: {'PASS' if results.get('model_training', False) else 'FAIL'}")
+    print(f"Enhanced Pipeline: {'PASS' if results.get('enhanced_pipeline', False) else 'FAIL'}")
+    print(f"Performance: {'PASS' if results.get('performance', False) else 'FAIL'}")
     
-    for test_name, result in results.items():
-        status = "PASS" if result else "FAIL"
-        print(f"{test_name.replace('_', ' ').title()}: {status}")
+    overall = all([results.get(k, False) for k in ['braking_data', 'model_training', 'enhanced_pipeline', 'performance']])
+    print(f"\nOverall: {'ALL TESTS PASSED' if overall else 'SOME TESTS FAILED'}")
     
-    overall_success = all(results.values())
-    print(f"\nOverall: {'ALL TESTS PASSED' if overall_success else 'SOME TESTS FAILED'}")
-    
-    if overall_success:
-        print("\nEV Smart Management System is fully operational!")
-    
-    return overall_success
+    if overall:
+        print("EV Smart Management System is fully operational!")
+    else:
+        print("Some tests failed - check logs above")
 
 if __name__ == "__main__":
     success = main()

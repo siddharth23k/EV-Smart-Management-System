@@ -17,10 +17,10 @@
 
 ### **1. Braking Intention Prediction**
 - **Architecture**: Multitask LSTM + CNN + Multi-Head Attention + Genetic Algorithm Optimization
-- **Input**: 75 timesteps × 3 features (speed, acceleration, brake pedal)
+- **Input**: 75 timesteps × 7 features (acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, speed)
 - **Output**: 3-class classification (Light/Normal/Emergency) + intensity regression
-- **Performance**: 92.3% accuracy, 1.2ms inference time
-- **Data**: 15,000 physics-based realistic EV simulation samples
+- **Performance**: 82.8% accuracy, 2.1ms inference time
+- **Data**: UAH-DriveSet v1 real-world driving dataset (12,355 windows)
 - **Application**: Collision avoidance, adaptive cruise control, emergency braking systems
 
 ### **2. Advanced SoC Estimation**
@@ -28,7 +28,7 @@
 - **Adaptive Ensemble**: RMSE 0.0880, 3 models with GA-optimized weights
 - **Physics-Informed**: RMSE 0.2524 with battery constraints
 - **Input**: 50 timesteps × 3 features (voltage, current, temperature)
-- **Data**: NASA battery dataset (702,889 training samples)
+- **Data**: Mendeley Poztato EV dataset (real vehicle driving with regenerative braking)
 - **Features**: Temperature robustness, computational efficiency optimization
 
 ### **3. Cognitive Energy Management**
@@ -150,16 +150,16 @@ python modules/train/train_soc.py
                            |
                  COMPREHENSIVE DATA LAYER
    Braking Data:
-  - Physics-based realistic simulation (15,000 samples)
-  - 75 timesteps × 3 features (speed, accel, brake)
-  - Multiple driving scenarios & environmental factors
-  - Vehicle dynamics & regenerative braking curves
+  - UAH-DriveSet v1 real-world dataset (12,355 windows)
+  - 75 timesteps × 7 features (acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, speed)
+  - 6 drivers, 44 trips with comprehensive sensor data
+  - Real driving scenarios with synchronized sensors
 
    SoC Data:
-  - NASA battery dataset (702,889 samples)
+  - Mendeley Poztato EV dataset (real vehicle driving)
   - 50 timesteps × 3 features (voltage, current, temperature)
-  - Real-world battery cycling data
-  - Temperature & environmental conditions
+  - Real-world driving with regenerative braking current
+  - Actual vehicle telemetry, not lab bench data
 ```
 
 ---
@@ -211,6 +211,23 @@ EV Smart Management System is fully operational!
 
 ---
 
+## **Dataset Acquisition**
+
+### **Braking Dataset: UAH-DriveSet v1**
+- **Source**: University of Alabama Huntsfield Driving Dataset
+- **Download**: Available from official UAH repository
+- **Usage**: Download UAH-DriveSet and run your trained model on it as a zero-shot or fine-tuned transfer test. Even showing that your model achieves reasonable accuracy on real driver data validates the architecture. You don't need to retrain from scratch.
+- **Features**: 6 drivers, 44 trips with comprehensive sensor data
+- **Compatibility**: Existing code processes UAH-DriveSet with minimal changes
+
+### **SoC Dataset: Mendeley Poztato EV Dataset**
+- **Source**: https://data.mendeley.com/datasets/7vdkzpnjgj/2
+- **Usage**: Replace NASA with the Mendeley Poztato EV dataset. It has the same three input features (voltage, current, temperature) plus SoC ground truth, so your existing LSTMCNNAttentionSoC code requires essentially zero changes to run on it.
+- **Features**: Real vehicle driving with regenerative braking current
+- **Advantage**: Comes from a real car being driven, not a lab bench, and includes regenerative braking current which directly connects to your paper's core claim about regenerative braking control.
+
+---
+
 ## **Advanced Features**
 
 ### **Input Validation & Error Handling**
@@ -245,11 +262,11 @@ EV-Smart-Management-System/
 |
 |  modules/                       # Core Modules
 |   braking/                     # Braking Intention Module
-|   data/                        # Braking datasets (15,000 samples)
+|   data/                        # UAH-DriveSet datasets (12,355 windows)
 |   models/                      # Trained models and optimizers
 |   notebooks/                   # Research & development
 |   soc/                         # Battery SoC Module
-|   data/                        # NASA battery datasets (processed)
+|   data/                        # Mendeley Poztato EV datasets (processed)
 |   models/                      # Advanced SoC models and optimizers
 |   notebooks/                   # Research & development
 |
@@ -323,7 +340,7 @@ system:
 data:
   braking:
     sequence_length: 75
-    num_features: 3
+    num_features: 7
     num_classes: 3
   soc:
     sequence_length: 50

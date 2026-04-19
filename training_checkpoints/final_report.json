@@ -1,8 +1,8 @@
 {
     "training_summary": {
         "total_duration": 0,
-        "start_time": "2026-04-19T14:32:24.253328",
-        "end_time": "2026-04-19T14:32:24.253328",
+        "start_time": "2026-04-19T18:11:01.411674",
+        "end_time": "2026-04-19T18:11:01.411674",
         "components_trained": 2,
         "components_failed": 0,
         "note": "Report generated from existing training results"

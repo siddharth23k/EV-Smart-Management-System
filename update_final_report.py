@@ -22,7 +22,10 @@ def check_existing_results():
     results = {}
     
     # Check Multi-Objective GA results
-    ga_results_path = "modules/soc/models/multi_objective_ga_results.json"
+    from shared.config import get_config
+    config = get_config()
+    paths = config.get_paths_config()
+    ga_results_path = os.path.join(paths['models']['soc'], 'multi_objective_ga_results.json')
     if os.path.exists(ga_results_path):
         try:
             with open(ga_results_path, "r") as f:
