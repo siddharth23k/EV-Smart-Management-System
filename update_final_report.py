@@ -5,12 +5,10 @@ import time
 from datetime import datetime
 import numpy as np
 
-# Add project root to path
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
 def check_existing_results():
-    """Check for existing training results."""
     print("CHECKING EXISTING RESULTS")
     
     results = {}
