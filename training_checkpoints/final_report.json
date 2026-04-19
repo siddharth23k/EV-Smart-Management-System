@@ -1,24 +1,23 @@
 {
     "training_summary": {
-        "total_duration": 2639.75306892395,
-        "start_time": "2026-04-13T00:39:41.272657",
-        "end_time": "2026-04-13T01:23:41.025741",
-        "components_trained": 1,
-        "components_failed": 1
+        "total_duration": 0,
+        "start_time": "2026-04-19T14:32:24.253328",
+        "end_time": "2026-04-19T14:32:24.253328",
+        "components_trained": 2,
+        "components_failed": 0,
+        "note": "Report generated from existing training results"
     },
     "component_results": {
         "Multi-Objective GA": {
             "status": "success",
-            "duration": 247.42364716529846,
-            "output": "ence Time: 0.89ms\n   Robustness Loss: 0.0042\n   Hyperparameters: {'learning_rate': 0.0001, 'batch_size': 32, 'lstm_hidden': 256, 'num_lstm_layers': 2, 'dropout_rate': 0.2, 'cnn_channels': 32, 'attention_heads': 8, 'use_layer_norm': False, 'bidirectional': False}\n\n\ud83c\udfaf BEST INDIVIDUAL OBJECTIVES:\n   Best RMSE: 0.0980\n   Best Efficiency: 0.04ms\n   Best Robustness: 0.0003\nResults saved: modules/soc/models/multi_objective_ga_results.json\n\u2705 Fitness plots saved: assets/img/multi_objective_ga_fitness.png\n"
+            "duration": 0,
+            "output": "Best RMSE: N/A\nBest Efficiency: N/Ams\nRobustness Loss: N/A\nHyperparameters: {}"
         },
         "Adaptive Ensemble": {
-            "status": "failed",
-            "duration": 2392.3147373199463,
-            "error": "n _iterencode_dict\n    yield from chunks\n  File \"/opt/homebrew/Cellar/python@3.11/3.11.12_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/encoder.py\", line 439, in _iterencode\n    o = _default(o)\n        ^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.11/3.11.12_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/encoder.py\", line 180, in default\n    raise TypeError(f'Object of type {o.__class__.__name__} '\nTypeError: Object of type float32 is not JSON serializable\n"
+            "status": "success",
+            "duration": 0,
+            "output": "Ensemble model configuration found\nWeights: [0.4112718230112874, 0.20902811908030222, 0.37970005790841027]\nAdaptation rate: 0.1"
         }
     },
-    "recommendations": [
-        "Adaptive Ensemble: Check error logs and fix issues"
-    ]
+    "recommendations": []
 }

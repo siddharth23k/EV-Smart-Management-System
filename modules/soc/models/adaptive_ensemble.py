@@ -384,10 +384,14 @@ class AdaptiveEnsembleSoC:
         def convert_types(obj):
             if hasattr(obj, 'tolist'):  # numpy arrays
                 return obj.tolist()
-            elif isinstance(obj, np.float32):
+            elif isinstance(obj, (np.float32, np.float64, np.float16)):
                 return float(obj)
-            elif isinstance(obj, np.int32):
+            elif isinstance(obj, (np.int32, np.int64, np.int16, np.int8)):
                 return int(obj)
+            elif isinstance(obj, np.bool_):
+                return bool(obj)
+            elif hasattr(obj, 'item'):  # numpy scalar types
+                return obj.item()
             elif isinstance(obj, dict):
                 return {k: convert_types(v) for k, v in obj.items()}
             elif isinstance(obj, list):
@@ -514,12 +518,16 @@ def train_adaptive_ensemble():
     """Main function to train adaptive ensemble."""
     print("=== Training Adaptive Ensemble SoC Model ===")
     
+    # Get project root
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+    
     # Load data
-    DATA = "modules/soc/data"
-    X_train = np.load(f"{DATA}/X_train_soc.npy")
-    y_train = np.load(f"{DATA}/y_train_soc.npy")
-    X_val = np.load(f"{DATA}/X_val_soc.npy")
-    y_val = np.load(f"{DATA}/y_val_soc.npy")
+    DATA = os.path.join(project_root, "modules/soc/data")
+    X_train = np.load(os.path.join(DATA, "X_train_soc.npy"))
+    y_train = np.load(os.path.join(DATA, "y_train_soc.npy"))
+    X_val = np.load(os.path.join(DATA, "X_val_soc.npy"))
+    y_val = np.load(os.path.join(DATA, "y_val_soc.npy"))
     
     # Use smaller dataset for faster training
     sample_size = 30000
@@ -557,10 +565,14 @@ def train_adaptive_ensemble():
     def convert_numpy_types(obj):
         if hasattr(obj, 'tolist'):  # numpy arrays
             return obj.tolist()
-        elif isinstance(obj, np.float32):
+        elif isinstance(obj, (np.float32, np.float64, np.float16)):
             return float(obj)
-        elif isinstance(obj, np.int32):
+        elif isinstance(obj, (np.int32, np.int64, np.int16, np.int8)):
             return int(obj)
+        elif isinstance(obj, np.bool_):
+            return bool(obj)
+        elif hasattr(obj, 'item'):  # numpy scalar types
+            return obj.item()
         elif isinstance(obj, dict):
             return {k: convert_numpy_types(v) for k, v in obj.items()}
         elif isinstance(obj, list):
