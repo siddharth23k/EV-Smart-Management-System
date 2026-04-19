@@ -1,7 +1,6 @@
-"""
-Adaptive Ensemble Learning with GA for SoC Estimation
-Combines multiple model types with GA-optimized ensemble weights
-"""
+
+# Combines multiple model types with GA-optimized ensemble weights
+
 
 import json
 import os
