@@ -7,7 +7,6 @@ from typing import Dict, List, Tuple, Optional, Any
 from enum import Enum
 import numpy as np
 
-# Add project root to path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 if project_root not in sys.path:

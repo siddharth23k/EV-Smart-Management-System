@@ -9,7 +9,6 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-# Add project root to path for absolute imports
 project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 
