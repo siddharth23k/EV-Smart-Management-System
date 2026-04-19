@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-Update Final Report using existing trained models
-Collects results from already completed training runs
-"""
-
 import os
 import sys
 import json
@@ -17,7 +11,7 @@ sys.path.insert(0, project_root)
 
 def check_existing_results():
     """Check for existing training results."""
-    print("=== CHECKING EXISTING RESULTS ===")
+    print("CHECKING EXISTING RESULTS")
     
     results = {}
     
