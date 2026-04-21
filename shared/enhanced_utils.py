@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class InputValidator:
-    """Validates input data for the unified pipeline."""
+    """validates input data for the unified pipeline"""
     
     def __init__(self, config):
         self.config = config
@@ -31,73 +31,73 @@ class InputValidator:
     def validate_braking_input(self, driving_window: np.ndarray) -> bool:
         try:
             if not isinstance(driving_window, np.ndarray):
-                raise ValueError("Driving window must be numpy array")
+                raise ValueError("driving window must be numpy array")
             
             expected_shape = (self.braking_config.get('window_size', 75), 
                            self.braking_config.get('input_dim', 7))
             if driving_window.shape != expected_shape:
-                raise ValueError(f"Driving window shape must be {expected_shape}, got {driving_window.shape}")
+                raise ValueError(f"driving window shape must be {expected_shape}, got {driving_window.shape}")
             
             if driving_window.dtype != np.float32:
-                logger.warning(f"Driving window dtype is {driving_window.dtype}, converting to float32")
+                logger.warning(f"driving window dtype is {driving_window.dtype}, converting to float32")
                 driving_window = driving_window.astype(np.float32)
             
             if np.any(np.isnan(driving_window)) or np.any(np.isinf(driving_window)):
-                raise ValueError("Driving window contains NaN or Inf values")
+                raise ValueError("driving window contains nan or inf values")
             
             if np.abs(driving_window).max() > 1000:
-                logger.warning("Driving window contains very large values, consider normalization")
+                logger.warning("driving window contains very large values, consider normalization")
             
             return True
             
         except Exception as e:
-            logger.error(f"Braking input validation failed: {e}")
+            logger.error(f"braking input validation failed: {e}")
             return False
     
     def validate_soc_input(self, battery_window: np.ndarray) -> bool:
         try:
             if not isinstance(battery_window, np.ndarray):
-                raise ValueError("Battery window must be numpy array")
+                raise ValueError("battery window must be numpy array")
             
             expected_shape = (self.soc_config.get('window_size', 50), 
                            self.soc_config.get('input_dim', 3))
             if battery_window.shape != expected_shape:
-                raise ValueError(f"Battery window shape must be {expected_shape}, got {battery_window.shape}")
+                raise ValueError(f"battery window shape must be {expected_shape}, got {battery_window.shape}")
             
             if battery_window.dtype != np.float32:
-                logger.warning(f"Battery window dtype is {battery_window.dtype}, converting to float32")
+                logger.warning(f"battery window dtype is {battery_window.dtype}, converting to float32")
                 battery_window = battery_window.astype(np.float32)
             
             if np.any(np.isnan(battery_window)) or np.any(np.isinf(battery_window)):
-                raise ValueError("Battery window contains NaN or Inf values")
+                raise ValueError("battery window contains nan or inf values")
             
             if battery_window.shape[1] >= 1:
                 voltage = battery_window[:, 0]
                 if np.any(np.abs(voltage) > 5):
-                    logger.warning("Normalized voltage values seem unusual (abs > 5)")
+                    logger.warning("normalized voltage values seem unusual (abs > 5)")
             
             return True
             
         except Exception as e:
-            logger.error(f"SoC input validation failed: {e}")
+            logger.error(f"soc input validation failed: {e}")
             return False
     
     def validate_soc_value(self, current_soc: float) -> bool:
         try:
             if not isinstance(current_soc, (int, float)):
-                raise ValueError("Current SoC must be a number")
+                raise ValueError("current soc must be a number")
             
             if not 0 <= current_soc <= 1:
-                raise ValueError("Current SoC must be between 0 and 1")
+                raise ValueError("current soc must be between 0 and 1")
             
             return True
             
         except Exception as e:
-            logger.error(f"SoC value validation failed: {e}")
+            logger.error(f"soc value validation failed: {e}")
             return False
 
 class ModelQuantizer:
-    """Handles model quantization for faster inference."""
+    """handles model quantization for faster inference"""
     
     @staticmethod
     def quantize_model(model: nn.Module, example_input: torch.Tensor) -> nn.Module:
@@ -108,58 +108,58 @@ class ModelQuantizer:
             return quantized_model
             
         except Exception as e:
-            logger.warning(f"Model quantization failed: {e}, using original model")
+            logger.warning(f"model quantization failed: {e}, using original model")
             return model
 
 class EnhancedEVPipeline:
-    """Enhanced EV Smart Management System with all improvements."""
+    """enhanced ev smart management system with all improvements"""
     
     def __init__(self, config_path: Optional[str] = None):
         self.config = get_config() if config_path is None else get_config()
         self.device = self.config.get_device()
         
-        # Setup paths and configs first
+        # setup paths and configs first
         self.paths = self.config.get_paths_config()
         self.inference_config = self.config.get_inference_config()
         self.performance_config = self.config.get_performance_config()
         
-        # Initialize components
+        # initialize components
         self.validator = InputValidator(self.config)
         self.quantizer = ModelQuantizer()
         self.cognitive_manager = CognitiveEnergyManager()
         
-        # Initialize models
+        # initialize models
         self.braking_model = None
         self.soc_model = None
         self.braking_model_quantized = None
         self.soc_model_quantized = None
         
-        # Load models
+        # load models
         self._load_models()
         
-        logger.info("Enhanced EV Pipeline initialized successfully")
+        logger.info("enhanced ev pipeline initialized successfully")
     
     def _load_models(self):
         try:
-            # Load braking model
+            # load braking model
             self._load_braking_model()
         except Exception as e:
-            logger.error(f"Failed to load braking model: {e}")
-            raise RuntimeError(f"Braking model loading failed: {e}")
+            logger.error(f"failed to load braking model: {e}")
+            raise RuntimeError(f"braking model loading failed: {e}")
         
         try:
-            # Load SoC model
+            # load soc model
             self._load_soc_model()
         except Exception as e:
-            logger.error(f"Failed to load SoC model: {e}")
-            raise RuntimeError(f"SoC model loading failed: {e}")
+            logger.error(f"failed to load soc model: {e}")
+            raise RuntimeError(f"soc model loading failed: {e}")
     
     def _load_braking_model(self):
         model_path = os.path.join(self.paths['models']['braking'], 'final_multitask_model.pth')
         hp_path = os.path.join(self.paths['models']['braking'], 'best_ga_hyperparams.json')
         
         if not os.path.exists(model_path):
-            raise FileNotFoundError(f"Braking model not found: {model_path}")
+            raise FileNotFoundError(f"braking model not found: {model_path}")
         
         try:
             if os.path.exists(hp_path):
@@ -182,7 +182,7 @@ class EnhancedEVPipeline:
                     dropout_rate=braking_config.get('dropout_rate', 0.0), 
                 )
             
-            # Load state dict
+            # load state dict
             state_dict = torch.load(model_path, map_location=self.device)
             self.braking_model.load_state_dict(state_dict)
             self.braking_model.to(self.device)
@@ -194,16 +194,16 @@ class EnhancedEVPipeline:
                     self.braking_model, example_input
                 )
             
-            logger.info("Braking model loaded successfully")
+            logger.info("braking model loaded successfully")
             
         except Exception as e:
-            raise RuntimeError(f"Error loading braking model: {e}")
+            raise RuntimeError(f"error loading braking model: {e}")
     
     def _load_soc_model(self):
         model_path = os.path.join(self.paths['models']['soc'], 'lstm_cnn_attention_soc.pth')
         
         if not os.path.exists(model_path):
-            raise FileNotFoundError(f"SoC model not found: {model_path}")
+            raise FileNotFoundError(f"soc model not found: {model_path}")
         
         try:
             self.soc_model = LSTMCNNAttentionSoC(
@@ -225,21 +225,21 @@ class EnhancedEVPipeline:
                     self.soc_model, example_input
                 )
             
-            logger.info("SoC model loaded successfully")
+            logger.info("soc model loaded successfully")
             
         except Exception as e:
-            raise RuntimeError(f"Error loading SoC model: {e}")
+            raise RuntimeError(f"error loading soc model: {e}")
     
     def run_single(self, driving_window: np.ndarray, battery_window: np.ndarray, 
                   current_soc: float) -> Dict[str, Any]:
-        """Run single inference with validation."""
+        """run single inference with validation"""
         if self.inference_config.get('validate_inputs', True):
             if not self.validator.validate_braking_input(driving_window):
-                raise ValueError("Invalid braking input")
+                raise ValueError("invalid braking input")
             if not self.validator.validate_soc_input(battery_window):
-                raise ValueError("Invalid SoC input")
+                raise ValueError("invalid soc input")
             if not self.validator.validate_soc_value(current_soc):
-                raise ValueError("Invalid current SoC value")
+                raise ValueError("invalid current soc value")
         
         driving_tensor = torch.tensor(driving_window, dtype=torch.float32).unsqueeze(0).to(self.device)
         battery_tensor = torch.tensor(battery_window, dtype=torch.float32).unsqueeze(0).to(self.device)
@@ -259,11 +259,11 @@ class EnhancedEVPipeline:
     
     def run_batch(self, driving_windows: List[np.ndarray], battery_windows: List[np.ndarray], 
                  current_socs: List[float]) -> List[Dict[str, Any]]:
-        """Run batch inference."""
+        """run batch inference"""
         if len(driving_windows) != len(battery_windows) or len(driving_windows) != len(current_socs):
-            raise ValueError("All input lists must have the same length")
+            raise ValueError("all input lists must have the same length")
         
-        # Validate all inputs
+        # validate all inputs
         if self.inference_config.get('validate_inputs', True):
             for i, (dw, bw, soc) in enumerate(zip(driving_windows, battery_windows, current_socs)):
                 if not self.validator.validate_braking_input(dw):
@@ -273,17 +273,17 @@ class EnhancedEVPipeline:
                 if not self.validator.validate_soc_value(soc):
                     raise ValueError(f"Invalid current SoC at index {i}")
         
-        # Convert to tensors
+        # convert to tensors
         driving_tensor = torch.tensor(np.stack(driving_windows), dtype=torch.float32).to(self.device)
         battery_tensor = torch.tensor(np.stack(battery_windows), dtype=torch.float32).to(self.device)
         
-        # Run inference
+        # run inference
         with torch.no_grad():
-            # Use quantized models if available
+            # use quantized models if available
             braking_model = self.braking_model_quantized or self.braking_model
             soc_model = self.soc_model_quantized or self.soc_model
             
-            # Batch predictions
+            # batch predictions
             class_logits, intensities = braking_model(driving_tensor)
             class_preds = torch.argmax(class_logits, dim=1).cpu().numpy()
             intensity_vals = torch.sigmoid(intensities).cpu().numpy()
@@ -303,14 +303,14 @@ class EnhancedEVPipeline:
     
     def run_with_cognitive(self, driving_window: np.ndarray, battery_window: np.ndarray, 
                            current_soc: float, driver_id: str = "default_driver") -> Dict[str, Any]:
-        """Run inference with cognitive driver profiling."""
+        """run inference with cognitive driver profiling"""
         if self.inference_config.get('validate_inputs', True):
             if not self.validator.validate_braking_input(driving_window):
-                raise ValueError("Invalid braking input")
+                raise ValueError("invalid braking input")
             if not self.validator.validate_soc_input(battery_window):
-                raise ValueError("Invalid SoC input")
+                raise ValueError("invalid soc input")
             if not self.validator.validate_soc_value(current_soc):
-                raise ValueError("Invalid current SoC value")
+                raise ValueError("invalid current soc value")
         
         basic_result = self.run_single(driving_window, battery_window, current_soc)
         

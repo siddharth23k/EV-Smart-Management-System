@@ -1,5 +1,5 @@
 """
-Enhanced EV Smart Management System Streamlit UI
+enhanced ev smart management system streamlit ui
 """
 
 import sys
@@ -21,7 +21,7 @@ from shared.config import get_config
 from shared.enhanced_utils import EnhancedEVPipeline
 
 def generate_driving_sequence(seq_len=75, init_speed=60, aggressiveness=0.5, noise_level=0.05):
-    """Generate driving sequence for braking prediction with 7 features."""
+    """generate driving sequence for braking prediction with 7 features"""
     speed = init_speed
     brake = 0.0
     data = []
@@ -31,7 +31,7 @@ def generate_driving_sequence(seq_len=75, init_speed=60, aggressiveness=0.5, noi
         brake += np.random.normal(0, noise_level)
         brake = np.clip(brake, 0, 1)
 
-        # Generate 7 features: acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, speed
+        # generate 7 features: acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, speed
         accel_x = -brake * np.random.uniform(2.0, 3.5) + np.random.normal(0, noise_level)
         accel_y = np.random.normal(0, noise_level)
         accel_z = np.random.normal(0, noise_level)
@@ -47,18 +47,18 @@ def generate_driving_sequence(seq_len=75, init_speed=60, aggressiveness=0.5, noi
     return np.array(data, dtype=np.float32)
 
 def generate_battery_sequence(seq_len=50, initial_soc=0.7, discharge_rate=0.01, noise_level=0.02):
-    """Generate battery sequence for SoC prediction."""
+    """generate battery sequence for soc prediction"""
     voltage = 3.8 - 0.5 * np.linspace(0, 1, seq_len)
     current = -1.0 * np.ones(seq_len) + np.random.normal(0, 0.05, seq_len)
     temperature = 25 + np.random.normal(0, 0.5, seq_len)
     
-    # Add noise
+    # add noise
     voltage += np.random.normal(0, noise_level, seq_len)
     current += np.random.normal(0, noise_level * 0.5, seq_len)
     
     return np.stack([voltage, current, temperature], axis=1).astype(np.float32)
 
-# Scenario presets
+# scenario presets
 SCENARIOS = {
     "Manual (use sliders)": None,
     "Highway Gentle Slowdown": (90, 0.18, 0.05),
@@ -67,31 +67,31 @@ SCENARIOS = {
     "Stop-and-Go Traffic": (40, 0.6, 0.12),
 }
 
-BATTERY_SCENARIOS = {
+battery_scenarios = {
     "Normal Driving": (0.7, 0.01, 0.02),
     "Aggressive Driving": (0.8, 0.02, 0.03),
     "Eco Mode": (0.6, 0.005, 0.01),
     "Battery Low": (0.2, 0.015, 0.02),
 }
 
-# Load enhanced pipeline
+# load enhanced pipeline
 @st.cache_resource
 def load_enhanced_pipeline():
-    """Load the enhanced EV pipeline."""
+    """load the enhanced ev pipeline"""
     try:
         return EnhancedEVPipeline()
     except Exception as e:
-        st.error(f"Failed to load pipeline: {e}")
+        st.error(f"failed to load pipeline: {e}")
         return None
 
-# Page config
+# page config
 st.set_page_config(
-    page_title="EV Smart Management System", 
+    page_title="ev smart management system", 
     layout="wide",
     page_icon="EV-Smart-Management-System/assets/img/1.jpg"
 )
 
-# Title
+# title
 st.markdown(
     """
     <h1 style="text-align:center;">EV Smart Management System</h1>
@@ -102,7 +102,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Top explainers
+# top explainers
 c1, c2, c3 = st.columns(3)
 
 with c1:

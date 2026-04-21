@@ -8,7 +8,7 @@ from typing import Dict, Tuple, Optional
 
 
 class EarlyStopper:
-    """Early stopping utility to prevent overfitting."""
+    """early stopping utility to prevent overfitting"""
     
     def __init__(self, patience=7, min_delta=0):
         self.patience = patience
@@ -17,7 +17,7 @@ class EarlyStopper:
         self.best_loss = float('inf')
         
     def should_stop(self, val_loss: float) -> bool:
-        """Check if training should stop."""
+        """check if training should stop"""
         if val_loss < self.best_loss - self.min_delta:
             self.best_loss = val_loss
             self.counter = 0
@@ -28,7 +28,7 @@ class EarlyStopper:
 
 
 class MetricsTracker:
-    """Track training and validation metrics."""
+    """track training and validation metrics"""
     
     def __init__(self):
         self.train_losses = []
@@ -42,7 +42,7 @@ class MetricsTracker:
     def update(self, train_loss: float, val_loss: float, val_accuracy: float = None, 
                val_f1: float = None, val_rmse: float = None, val_mae: float = None,
                epoch_time: float = None):
-        """Update metrics for current epoch."""
+        """update metrics for current epoch"""
         self.train_losses.append(train_loss)
         self.val_losses.append(val_loss)
         if val_accuracy is not None:
@@ -57,7 +57,7 @@ class MetricsTracker:
             self.epoch_times.append(epoch_time)
     
     def get_best_epoch(self, metric: str = 'val_loss') -> int:
-        """Get epoch with best validation metric."""
+        """get epoch with best validation metric"""
         if metric == 'val_loss':
             return np.argmin(self.val_losses)
         elif metric == 'val_accuracy' and self.val_accuracies:
@@ -68,28 +68,28 @@ class MetricsTracker:
             return np.argmin(self.val_losses)
     
     def print_summary(self):
-        """Print training summary."""
+        """print training summary"""
         if not self.val_losses:
             return
             
         best_epoch = self.get_best_epoch()
-        print(f"\n=== Training Summary ===")
-        print(f"Total epochs: {len(self.train_losses)}")
-        print(f"Best epoch: {best_epoch + 1}")
-        print(f"Best val loss: {min(self.val_losses):.6f}")
+        print(f"\ntraining summary")
+        print(f"total epochs: {len(self.train_losses)}")
+        print(f"best epoch: {best_epoch + 1}")
+        print(f"best val loss: {min(self.val_losses):.6f}")
         
         if self.val_accuracies:
-            print(f"Best val accuracy: {max(self.val_accuracies):.4f}")
+            print(f"best val accuracy: {max(self.val_accuracies):.4f}")
         if self.val_f1_scores:
-            print(f"Best val F1: {max(self.val_f1_scores):.4f}")
+            print(f"best val f1: {max(self.val_f1_scores):.4f}")
         if self.val_rmse:
-            print(f"Best val RMSE: {min(self.val_rmse):.4f}")
+            print(f"best val rmse: {min(self.val_rmse):.4f}")
         if self.epoch_times:
-            print(f"Total training time: {sum(self.epoch_times):.2f}s")
+            print(f"total training time: {sum(self.epoch_times):.2f}s")
 
 
 def calculate_classification_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
-    """Calculate classification metrics."""
+    """calculate classification metrics"""
     accuracy = accuracy_score(y_true, y_pred)
     f1_macro = f1_score(y_true, y_pred, average='macro')
     f1_weighted = f1_score(y_true, y_pred, average='weighted')
@@ -102,7 +102,7 @@ def calculate_classification_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> 
 
 
 def calculate_regression_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
-    """Calculate regression metrics."""
+    """calculate regression metrics"""
     mse = mean_squared_error(y_true, y_pred)
     rmse = np.sqrt(mse)
     mae = mean_absolute_error(y_true, y_pred)
@@ -118,7 +118,7 @@ def calculate_regression_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict
 
 def save_model_checkpoint(model: torch.nn.Module, optimizer: torch.optim.Optimizer,
                          epoch: int, loss: float, path: str, metrics: Dict = None):
-    """Save model checkpoint."""
+    """save model checkpoint"""
     checkpoint = {
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
@@ -133,7 +133,7 @@ def save_model_checkpoint(model: torch.nn.Module, optimizer: torch.optim.Optimiz
 
 def load_model_checkpoint(model: torch.nn.Module, optimizer: torch.optim.Optimizer,
                          path: str, device: torch.device) -> Tuple[int, float, Dict]:
-    """Load model checkpoint."""
+    """load model checkpoint"""
     checkpoint = torch.load(path, map_location=device)
     
     model.load_state_dict(checkpoint['model_state_dict'])
@@ -145,7 +145,7 @@ def load_model_checkpoint(model: torch.nn.Module, optimizer: torch.optim.Optimiz
 def create_data_loaders(X_train: np.ndarray, y_train: np.ndarray,
                        X_val: np.ndarray = None, y_val: np.ndarray = None,
                        batch_size: int = 32, shuffle_train: bool = True) -> Tuple[DataLoader, Optional[DataLoader]]:
-    """Create PyTorch data loaders."""
+    """create pytorch data loaders"""
     train_dataset = TensorDataset(
         torch.tensor(X_train, dtype=torch.float32),
         torch.tensor(y_train, dtype=torch.float32 if y_train.ndim == 1 else torch.long)

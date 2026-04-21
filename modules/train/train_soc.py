@@ -13,7 +13,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 
 from shared.config import get_config
-from shared.train_utils import set_seed, create_data_loaders, EarlyStopper, MetricsTracker
+from shared.train_utils import set_seed, create_data_loaders, EarlyStopper, MetricsTracker, calculate_regression_metrics, save_model_checkpoint
 from shared.dataset_loader import get_dataset_loader
 from modules.soc.models.lstm_cnn_attention_soc import LSTMCNNAttentionSoC, train_soc_model, evaluate_soc_model
 
@@ -27,7 +27,7 @@ def train_lstm_baseline(X_train, y_train, X_val, y_val, device, config=None):
         device = torch.device("cuda")
     else:
         device = torch.device("cpu") 
-    print("Training baseline SoC model...")
+    print("training baseline soc model...")
     
     best_val_loss = float('inf')
     
@@ -82,7 +82,7 @@ def train_lstm_baseline(X_train, y_train, X_val, y_val, device, config=None):
             
             train_loss += loss.item()
         
-        print(f"Epoch {epoch+1}, Loss: {train_loss/len(X_train):.4f}")
+        print(f"epoch {epoch+1}, loss: {train_loss/len(X_train):.4f}")
         
         model.eval()
         val_predictions = []
@@ -100,7 +100,7 @@ def train_lstm_baseline(X_train, y_train, X_val, y_val, device, config=None):
         val_loss = train_loss / len(X_train)
         
         if epoch % 10 == 0:
-            print(f"Epoch {epoch}: Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}, Val RMSE: {val_rmse:.4f}")
+            print(f"epoch {epoch}: train loss: {train_loss:.6f}, val loss: {val_loss:.6f}, val rmse: {val_rmse:.4f}")
         
         if val_loss < best_val_loss:
             best_val_loss = val_loss
@@ -115,7 +115,7 @@ def train_lstm_baseline(X_train, y_train, X_val, y_val, device, config=None):
                 print(f"Early stopping at epoch {epoch}")
                 break
     
-    print("Baseline LSTM SoC model training complete!")
+    print("baseline lstm soc model training complete!")
     return model
 
 
@@ -134,17 +134,17 @@ def main():
     else:
         device = torch.device(args.device if torch.cuda.is_available() else "cpu")
     
-    print(f"Using device: {device}")
+    print(f"using device: {device}")
     
     set_seed(config.get('system.seed', 42))
     
     try:
-        print("Loading SoC datasets...")
+        print("loading soc datasets...")
         dataset_loader = get_dataset_loader()
         dataset_info = dataset_loader.get_dataset_info('soc')
         
-        print(f"Using {dataset_info['source']} dataset")
-        print(f"Dataset info: {dataset_info}")
+        print(f"using {dataset_info['source']} dataset")
+        print(f"dataset info: {dataset_info}")
         
         X_train, X_val, X_test, y_train, y_val, y_test = dataset_loader.load_soc_dataset()
         
@@ -231,13 +231,47 @@ def main():
             val_loss /= len(val_loader)
             train_loss /= len(train_loader)
             
+            # Calculate regression metrics on validation set
+            cnn_model.eval()
+            val_predictions = []
+            val_targets = []
+            with torch.no_grad():
+                for batch_x, batch_y in val_loader:
+                    batch_x, batch_y = batch_x.to(device), batch_y.to(device)
+                    outputs = cnn_model(batch_x)
+                    val_predictions.extend(outputs.cpu().numpy())
+                    val_targets.extend(batch_y.cpu().numpy())
+            
+            val_predictions = np.array(val_predictions)
+            val_targets = np.array(val_targets)
+            val_metrics = calculate_regression_metrics(val_targets, val_predictions)
+            
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
                 wait = 0
                 paths = config.get_paths_config()
                 model_path = paths['models']['soc']
                 os.makedirs(model_path, exist_ok=True)
-                torch.save(cnn_model.state_dict(), os.path.join(model_path, "lstm_cnn_attention_soc.pth"))
+                
+                # Prepare metrics to save with model
+                final_metrics = {
+                    'val_rmse': val_metrics['rmse'],
+                    'val_mae': val_metrics['mae'],
+                    'val_mape': val_metrics['mape'],
+                    'best_val_loss': best_val_loss,
+                    'training_epochs': epoch + 1,
+                    'model_type': 'lstm_cnn_attention_soc'
+                }
+                
+                # Save model with metrics
+                save_model_checkpoint(cnn_model, optimizer, epoch, val_loss,
+                                    os.path.join(model_path, "lstm_cnn_attention_soc.pth"),
+                                    final_metrics)
+                
+                # Also save metrics separately as JSON for easy loading
+                import json
+                with open(os.path.join(model_path, "lstm_cnn_attention_soc_metrics.json"), 'w') as f:
+                    json.dump(final_metrics, f, indent=2)
             else:
                 wait += 1
                 if wait >= patience:

@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import time
 import numpy as np
 import torch
@@ -9,7 +10,7 @@ project_root = Path(__file__).parent
 sys.path.append(str(project_root))
 
 def check_data_availability():
-    print("Checking data availability...")
+    print("checking data availability...")
     
     from shared.config import get_config
     config = get_config()
@@ -33,44 +34,44 @@ def check_data_availability():
     missing_soc = [f for f in soc_files if not os.path.exists(f)]
     
     if missing_braking:
-        print(f"Missing braking data: {missing_braking}")
+        print(f"missing braking data: {missing_braking}")
         return False
     
     if missing_soc:
-        print(f"Missing SoC data: {missing_soc}")
+        print(f"missing soc data: {missing_soc}")
         return False
     
-    print("All datasets available")
+    print("all datasets available")
     return True
 
 def generate_braking_data():
-    print("Generating braking dataset...")
+    print("generating braking dataset...")
     
     try:
         from modules.braking.data.preprocess_real_data import process_all_data
         process_all_data()
-        print("Braking dataset generated")
+        print("braking dataset generated")
         return True
         
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"error: {e}")
         return False
 
 def generate_soc_data():
-    print("Generating SoC dataset...")
+    print("generating soc dataset...")
     
     try:
         from modules.soc.data.preprocess_real_data import process_all_data
         process_all_data()
-        print("SoC dataset generated")
+        print("soc dataset generated")
         return True
         
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"error: {e}")
         return False
 
 def check_model_availability():
-    print("Checking model availability...")
+    print("checking model availability...")
     
     models = {
         "braking": "modules/braking/models/final_multitask_model.pth",
@@ -83,67 +84,222 @@ def check_model_availability():
             missing.append(f"{name}: {path}")
     
     if missing:
-        print(f"Missing models: {missing}")
+        print(f"missing models: {missing}")
         return False
     
-    print("All models available")
+    print("all models available")
     return True
 
 def train_models():
-    print("Training models...")
+    print("training models...")
     
     try:
-        print("Training braking model...")
+        print("training braking model...")
         os.system(f"cd {project_root} && source .venv/bin/activate && python modules/train/train_braking.py")
         
-        # Train SoC model
-        print("Training SoC model...")
+        # train soc model
+        print("training soc model...")
         os.system(f"cd {project_root} && source .venv/bin/activate && python modules/train/train_soc.py")
         
-        print("Model training completed")
+        print("model training completed")
         return True
         
     except Exception as e:
-        print(f"Error training models: {e}")
+        print(f"error training models: {e}")
         return False
 
+def calculate_and_display_model_metrics():
+    """calculate and display model quality metrics by evaluating existing models"""
+    print("calculating model quality metrics...")
+    
+    try:
+        import torch
+        import torch.nn as nn
+        from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, mean_absolute_error
+        from shared.config import get_config
+        from shared.dataset_loader import get_dataset_loader
+        from modules.braking.models.multitask_lstm_cnn_attention import MultitaskLSTMCNNAttention
+        from modules.soc.models.lstm_cnn_attention_soc import LSTMCNNAttentionSoC
+        
+        config = get_config()
+        dataset_loader = get_dataset_loader()
+        device = torch.device("cpu")
+        
+        metrics = {}
+        
+        # evaluate braking model
+        print("evaluating braking model...")
+        try:
+            (X_train, X_val, X_test, 
+             y_int_train, y_int_val, y_int_test,
+             y_class_train, y_class_val, y_class_test) = dataset_loader.load_braking_dataset()
+            
+            model = MultitaskLSTMCNNAttention(
+                input_dim=7,
+                cnn_channels=32,
+                lstm_hidden=64,
+                num_lstm_layers=1,
+                dropout_rate=0.0
+            )
+            
+            model_path = "modules/braking/models/final_multitask_model.pth"
+            model.load_state_dict(torch.load(model_path, map_location=device))
+            model.to(device)
+            model.eval()
+            
+            # evaluate on validation set
+            X_val_tensor = torch.tensor(X_val, dtype=torch.float32).to(device)
+            y_class_val_tensor = torch.tensor(y_class_val, dtype=torch.long).to(device)
+            
+            with torch.no_grad():
+                cls_outputs, _ = model(X_val_tensor)
+                _, predicted = torch.max(cls_outputs.data, 1)
+                
+                y_true = y_class_val_tensor.cpu().numpy()
+                y_pred = predicted.cpu().numpy()
+                
+                # calculate metrics
+                accuracy = accuracy_score(y_true, y_pred)
+                f1_macro = f1_score(y_true, y_pred, average='macro')
+                f1_weighted = f1_score(y_true, y_pred, average='weighted')
+                
+                metrics['braking'] = {
+                    'val_accuracy': float(accuracy),
+                    'val_f1_macro': float(f1_macro),
+                    'val_f1_weighted': float(f1_weighted),
+                    'validation_samples': len(y_true)
+                }
+                
+        except Exception as e:
+            print(f"  error evaluating braking model: {e}")
+        
+        # evaluate soc model
+        print("evaluating soc model...")
+        try:
+            X_train, y_train, X_val, y_val, X_test, y_test = dataset_loader.load_soc_dataset()
+            
+            # use smaller subset for evaluation to avoid memory issues
+            max_samples = min(1000, len(X_val))  # Limit to 1000 samples max
+            X_val_subset = X_val[:max_samples]
+            y_val_subset = y_val[:max_samples]
+            
+            print(f"  using {len(X_val_subset)} samples for evaluation (subset of {len(X_val)})")
+            
+            model = LSTMCNNAttentionSoC(
+                input_dim=3,
+                cnn_channels=64,
+                lstm_hidden=128,
+                num_lstm_layers=2,
+                dropout=0.2
+            )
+            
+            model_path = "modules/soc/models/lstm_cnn_attention_soc.pth"
+            model.load_state_dict(torch.load(model_path, map_location=device))
+            model.to(device)
+            model.eval()
+            
+            # evaluate in batches to avoid memory issues
+            batch_size = 32
+            all_predictions = []
+            
+            with torch.no_grad():
+                for i in range(0, len(X_val_subset), batch_size):
+                    batch_x = torch.tensor(X_val_subset[i:i+batch_size], dtype=torch.float32).to(device)
+                    batch_outputs = model(batch_x)
+                    all_predictions.extend(batch_outputs.cpu().numpy())
+                    
+                    # clear memory
+                    del batch_x, batch_outputs
+                    if i % (batch_size * 10) == 0:  # periodic cleanup
+                        torch.cuda.empty_cache() if torch.cuda.is_available() else None
+            
+            y_pred = np.array(all_predictions)
+            
+            # calculate regression metrics
+            mse = mean_squared_error(y_val_subset, y_pred)
+            rmse = np.sqrt(mse)
+            mae = mean_absolute_error(y_val_subset, y_pred)
+            mape = np.mean(np.abs((y_val_subset - y_pred) / (y_val_subset + 1e-8))) * 100
+            
+            metrics['soc'] = {
+                'val_rmse': float(rmse),
+                'val_mae': float(mae),
+                'val_mape': float(mape),
+                'validation_samples': len(y_val_subset)
+            }
+            
+            print(f"  soc evaluation completed successfully")
+                
+        except Exception as e:
+            print(f"  error evaluating soc model: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        # display metrics
+        print("model quality metrics")
+        if 'braking' in metrics:
+            print("braking model performance:")
+            b_metrics = metrics['braking']
+            print(f"  validation accuracy: {b_metrics['val_accuracy']:.4f}")
+            print(f"  validation f1-score (macro): {b_metrics['val_f1_macro']:.4f}")
+            print(f"  validation f1-score (weighted): {b_metrics['val_f1_weighted']:.4f}")
+            print(f"  validation samples: {b_metrics['validation_samples']}")
+        else:
+            print("\nbraking model: evaluation failed")
+        
+        if 'soc' in metrics:
+            print("\nsoc model performance:")
+            s_metrics = metrics['soc']
+            print(f"  validation rmse: {s_metrics['val_rmse']:.4f}")
+            print(f"  validation mae: {s_metrics['val_mae']:.4f}")
+            print(f"  validation mape: {s_metrics['val_mape']:.2f}%")
+            print(f"  validation samples: {s_metrics['validation_samples']}")
+        else:
+            print("\nsoc model: evaluation failed")
+        
+        return metrics
+        
+    except Exception as e:
+        print(f"error calculating model metrics: {e}")
+        return {}
+
 def test_enhanced_pipeline():
-    print("Testing enhanced pipeline...")
+    print("testing enhanced pipeline...")
     
     try:
         from shared.enhanced_utils import EnhancedEVPipeline
         
-        print("Initializing pipeline...")
+        print("initializing pipeline...")
         pipeline = EnhancedEVPipeline()
         
-        print("Generating test data...")
+        print("generating test data...")
         driving_window, battery_window = pipeline.generate_sample_inputs()
         current_soc = 0.45
         
-        # Test basic inference
-        print("Testing basic inference...")
+        # test basic inference
+        print("testing basic inference...")
         start_time = time.time()
         basic_result = pipeline.run_single(driving_window, battery_window, current_soc)
         basic_time = time.time() - start_time
         
-        print(f"Basic inference: {basic_result['system_action']}")
-        print(f"Inference time: {basic_time*1000:.2f}ms")
+        print(f"basic inference: {basic_result['system_action']}")
+        print(f"inference time: {basic_time*1000:.2f}ms")
         
-        # Test cognitive inference
-        print("Testing cognitive inference...")
+        # test cognitive inference
+        print("testing cognitive inference...")
         start_time = time.time()
         cognitive_result = pipeline.run_with_cognitive(
             driving_window, battery_window, current_soc, driver_id="test_driver_001"
         )
         cognitive_time = time.time() - start_time
         
-        print(f"Driver style: {cognitive_result['cognitive']['driver_profile']['driving_style']}")
-        print(f"Prediction confidence: {cognitive_result['cognitive']['prediction_confidence']:.2f}")
-        print(f"Cognitive action: {cognitive_result['system_action']}")
-        print(f"Inference time: {cognitive_time*1000:.2f}ms")
+        print(f"driver style: {cognitive_result['cognitive']['driver_profile']['driving_style']}")
+        print(f"prediction confidence: {cognitive_result['cognitive']['prediction_confidence']:.2f}")
+        print(f"cognitive action: {cognitive_result['system_action']}")
+        print(f"inference time: {cognitive_time*1000:.2f}ms")
         
-        # Test batch inference
-        print("Testing batch inference...")
+        # test batch inference
+        print("testing batch inference...")
         driving_windows, battery_windows = pipeline.generate_sample_inputs(10)
         current_socs = [0.3 + i*0.05 for i in range(10)]
         
@@ -152,30 +308,30 @@ def test_enhanced_pipeline():
         batch_time = time.time() - start_time
         
         throughput = len(batch_results) / batch_time
-        print(f"Batch inference: {len(batch_results)} samples")
-        print(f"Throughput: {throughput:.1f} samples/second")
+        print(f"batch inference: {len(batch_results)} samples")
+        print(f"throughput: {throughput:.1f} samples/second")
         
-        # Get cognitive summary
-        print("Getting cognitive summary...")
+        # get cognitive summary
+        print("getting cognitive summary...")
         summary = pipeline.get_cognitive_summary()
-        print(f"Active drivers: {summary.get('active_drivers', 0)}")
-        print(f"Adaptation level: {summary.get('adaptation_level', 0):.2f}")
+        print(f"active drivers: {summary.get('active_drivers', 0)}")
+        print(f"adaptation level: {summary.get('adaptation_level', 0):.2f}")
         
-        print("Enhanced pipeline test completed")
+        print("enhanced pipeline test completed")
         return True
         
     except Exception as e:
-        print(f"Error testing enhanced pipeline: {e}")
+        print(f"error testing enhanced pipeline: {e}")
         return False
 
 def run_performance_benchmark():
-    print("Running performance benchmark...")
+    print("running performance benchmark...")
     
     try:
         from shared.enhanced_utils import EnhancedEVPipeline
         
         pipeline = EnhancedEVPipeline()
-        print("Benchmarking single inference...")
+        print("benchmarking single inference...")
         driving_window, battery_window = pipeline.generate_sample_inputs()
         current_soc = 0.5
         
@@ -188,14 +344,14 @@ def run_performance_benchmark():
         avg_time = np.mean(times) * 1000
         std_time = np.std(times) * 1000
         
-        print(f"Average inference time: {avg_time:.2f}±{std_time:.2f}ms")
-        print(f"Min/Max time: {min(times)*1000:.2f}/{max(times)*1000:.2f}ms")
+        print(f"average inference time: {avg_time:.2f}±{std_time:.2f}ms")
+        print(f"min/max time: {min(times)*1000:.2f}/{max(times)*1000:.2f}ms")
         
-        print("Benchmarking batch inference...")
+        print("benchmarking batch inference...")
         batch_sizes = [1, 10, 50, 100]
         
         for batch_size in batch_sizes:
-            print(f"Generating {batch_size} samples...")
+            print(f"generating {batch_size} samples...")
             driving_windows, battery_windows = pipeline.generate_sample_inputs(batch_size)
             
             if batch_size == 1:
@@ -204,14 +360,14 @@ def run_performance_benchmark():
                 if not isinstance(battery_windows, list):
                     battery_windows = [battery_windows]
             
-            # Ensure matching lengths for batch processing
+            # ensure matching lengths for batch processing
             current_socs = [0.5 + i*0.001 for i in range(batch_size)]  # Smaller increments to stay in [0,1]
             current_socs = [min(0.95, max(0.05, soc)) for soc in current_socs]  # Clamp to valid range
             
-            print(f"Generated {len(driving_windows)} driving windows, {len(battery_windows)} battery windows, {len(current_socs)} SoC values")
+            print(f"generated {len(driving_windows)} driving windows, {len(battery_windows)} battery windows, {len(current_socs)} soc values")
             
             if len(driving_windows) != len(battery_windows) or len(driving_windows) != len(current_socs):
-                print(f"ERROR: Length mismatch - driving: {len(driving_windows)}, battery: {len(battery_windows)}, soc: {len(current_socs)}")
+                print(f"error: length mismatch - driving: {len(driving_windows)}, battery: {len(battery_windows)}, soc: {len(current_socs)}")
                 continue
             
             start_time = time.time()
@@ -219,22 +375,22 @@ def run_performance_benchmark():
             batch_time = time.time() - start_time
             
             throughput = batch_size / batch_time
-            print(f"Batch size {batch_size}: {throughput:.1f} samples/second")
+            print(f"batch size {batch_size}: {throughput:.1f} samples/second")
         
-        print("Performance benchmark completed")
+        print("performance benchmark completed")
         return True
         
     except Exception as e:
-        print(f"Error in performance benchmark: {e}")
+        print(f"error in performance benchmark: {e}")
         return False
 
 def main():
-    print("EV Smart Management System - Pipeline Test")
+    print("ev smart management system - pipeline test")
     
     results = {}
     
     if not check_data_availability():
-        print("Generating missing datasets...")
+        print("generating missing datasets...")
         results['braking_data'] = generate_braking_data()
         results['soc_data'] = generate_soc_data()
     else:
@@ -242,34 +398,37 @@ def main():
         results['soc_data'] = True
     
     if not check_model_availability():
-        print("Training missing models...")
+        print("training missing models...")
         results['model_training'] = train_models()
     else:
         results['model_training'] = True
     
     if not (results.get('braking_data', False) and results.get('soc_data', False) and results.get('model_training', False)):
-        print("Skipping pipeline tests - some steps failed")
+        print("skipping pipeline tests - some steps failed")
         return
     
-    print("Testing enhanced pipeline...")
+    # calculate and display model quality metrics
+    calculate_and_display_model_metrics()
+    
+    print("testing enhanced pipeline...")
     results['enhanced_pipeline'] = test_enhanced_pipeline()
     
-    print("Performance benchmark...")
+    print("performance benchmark...")
     results['performance'] = run_performance_benchmark()
     
-    print("Pipeline test summary")
-    print(f"Data Generation: {'PASS' if results.get('braking_data', False) else 'FAIL'}")
-    print(f"Model Training: {'PASS' if results.get('model_training', False) else 'FAIL'}")
-    print(f"Enhanced Pipeline: {'PASS' if results.get('enhanced_pipeline', False) else 'FAIL'}")
-    print(f"Performance: {'PASS' if results.get('performance', False) else 'FAIL'}")
+    print("pipeline test summary")
+    print(f"data generation: {'pass' if results.get('braking_data', False) else 'fail'}")
+    print(f"model training: {'pass' if results.get('model_training', False) else 'fail'}")
+    print(f"enhanced pipeline: {'pass' if results.get('enhanced_pipeline', False) else 'fail'}")
+    print(f"performance: {'pass' if results.get('performance', False) else 'fail'}")
     
     overall = all([results.get(k, False) for k in ['braking_data', 'model_training', 'enhanced_pipeline', 'performance']])
-    print(f"\nOverall: {'ALL TESTS PASSED' if overall else 'SOME TESTS FAILED'}")
+    print(f"\noverall: {'all tests passed' if overall else 'some tests failed'}")
     
     if overall:
-        print("EV Smart Management System is fully operational!")
+        print("ev smart management system is fully operational!")
     else:
-        print("Some tests failed - check logs above")
+        print("some tests failed - check logs above")
 
 if __name__ == "__main__":
     success = main()

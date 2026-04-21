@@ -7,16 +7,16 @@ from typing import Dict, List, Tuple
 import warnings
 warnings.filterwarnings('ignore')
 
-# Project root is 3 levels up from modules/soc/data/
+# project root is 3 levels up from modules/soc/data/
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 DATA_DIR = os.path.join(PROJECT_ROOT, "Real-world electric vehicle data driving and charging")
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__))
 WINDOW_SIZE = 50
-STEP_SIZE = 25  # Larger step size for faster processing
+STEP_SIZE = 25  # larger step size for faster processing
 CAPACITY_AH = 2.0
 
 def load_ev_data(folder_path: str) -> Dict[str, np.ndarray]:
-    """Load EV data from MATLAB .mat file using h5py."""
+    """load ev data from matlab .mat file using h5py"""
     mat_file = None
     for file in os.listdir(folder_path):
         if file.endswith('.mat'):
@@ -34,14 +34,14 @@ def load_ev_data(folder_path: str) -> Dict[str, np.ndarray]:
         if key in raw_data:
             result[key] = np.array(raw_data[key]).flatten()
         else:
-            print(f"Warning: {key} not found in data")
+            print(f"warning: {key} not found in data")
             result[key] = np.array([])
     
     data.close()
     return result
 
 def synchronize_data(ev_data: Dict[str, np.ndarray]) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Synchronize voltage, current, temperature, and SoC data."""
+    """synchronize voltage, current, temperature, and soc data"""
     curr = ev_data['Curr']
     volt = ev_data['Volt']
     temp = ev_data['Temp']

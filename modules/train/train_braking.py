@@ -13,18 +13,18 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 
 from shared.config import get_config
-from shared.train_utils import set_seed, create_data_loaders, EarlyStopper, MetricsTracker
+from shared.train_utils import MetricsTracker, calculate_classification_metrics, save_model_checkpoint, create_data_loaders, EarlyStopper
 from shared.dataset_loader import get_dataset_loader
 from modules.braking.models.multitask_lstm_cnn_attention import MultitaskLSTMCNNAttention
 from modules.braking.models.genetic_algorithm_optimizer import GeneticAlgorithmOptimizer
 
 
 def train_baseline_model(X_train, y_train, X_val, y_val, device="cpu", config=None):
-    print("Training baseline model...")
+    print("training baseline model...")
     
     unique_classes = len(np.unique(y_train))
     if unique_classes == 1:
-        print("Error: Only one class in dataset.")
+        print("error: only one class in dataset.")
         return None
     
     num_classes = len(np.unique(y_train))
@@ -124,13 +124,13 @@ def train_baseline_model(X_train, y_train, X_val, y_val, device="cpu", config=No
                 print(f"Early stopping at epoch {epoch}")
                 break
     
-    print("Baseline model training complete!")
+    print("baseline model training complete!")
     return model
 
 
 def train_multitask_model(X_train, y_class_train, y_int_train, X_val, y_class_val, y_int_val, device="cpu", config=None):
-    """Train multitask model with both classification and regression."""
-    print("Training multitask model...")
+    """train multitask model with both classification and regression"""
+    print("training multitask model...")
     
     model = MultitaskLSTMCNNAttention(input_dim=X_train.shape[2])
     model = model.to(device)
@@ -172,6 +172,9 @@ def train_multitask_model(X_train, y_class_train, y_int_train, X_val, y_class_va
     
     best_val_loss = float('inf')
     wait = 0
+    
+    # Initialize metrics tracker
+    metrics_tracker = MetricsTracker()
     
     for epoch in range(epochs):
         model.train()
@@ -215,6 +218,12 @@ def train_multitask_model(X_train, y_class_train, y_int_train, X_val, y_class_va
         train_loss /= len(train_loader)
         val_acc = 100 * cls_correct / cls_total
         
+        # Calculate additional metrics
+        val_accuracy = cls_correct / cls_total
+        
+        # Update metrics tracker
+        metrics_tracker.update(train_loss, val_loss, val_accuracy=val_accuracy, epoch_time=0)
+        
         if epoch % 10 == 0:
             print(f"Epoch {epoch}: Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
         
@@ -224,7 +233,24 @@ def train_multitask_model(X_train, y_class_train, y_int_train, X_val, y_class_va
             paths = config.get_paths_config()
             model_path = paths['models']['braking']
             os.makedirs(model_path, exist_ok=True)
-            torch.save(model.state_dict(), os.path.join(model_path, "final_multitask_model.pth"))
+            
+            # Prepare metrics to save with model
+            final_metrics = {
+                'val_accuracy': val_accuracy,
+                'best_val_loss': best_val_loss,
+                'training_epochs': epoch + 1,
+                'model_type': 'multitask_lstm_cnn_attention'
+            }
+            
+            # Save model with metrics
+            save_model_checkpoint(model, optimizer, epoch, val_loss, 
+                                os.path.join(model_path, "final_multitask_model.pth"), 
+                                final_metrics)
+            
+            # Also save metrics separately as JSON for easy loading
+            import json
+            with open(os.path.join(model_path, "final_multitask_model_metrics.json"), 'w') as f:
+                json.dump(final_metrics, f, indent=2)
         else:
             wait += 1
             if wait >= patience:

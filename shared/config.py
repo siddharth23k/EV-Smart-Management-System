@@ -22,9 +22,9 @@ class Config:
                 config = yaml.safe_load(f)
             return config
         except FileNotFoundError:
-            raise FileNotFoundError(f"Configuration file not found: {self.config_path}")
+            raise FileNotFoundError(f"configuration file not found: {self.config_path}")
         except yaml.YAMLError as e:
-            raise ValueError(f"Invalid YAML configuration: {e}")
+            raise ValueError(f"invalid yaml configuration: {e}")
     
     def _setup_paths(self):
         project_root = Path(__file__).parent.parent
