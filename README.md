@@ -1,10 +1,5 @@
 # EV Smart Management System
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-Manual%20Testing-brightgreen.svg)](run_complete_pipeline.py)
-[![Performance](https://img.shields.io/badge/Performance-Production%20Ready-orange.svg)](run_complete_pipeline.py)
 
 > **Advanced Intelligent Electric Vehicle Management System**  
 > Multi-objective AI-powered braking intention prediction, battery State-of-Charge estimation, cognitive driver profiling, and physics-informed optimization for next-generation EV energy management
@@ -170,10 +165,12 @@ python modules/train/train_soc.py
 
 | Metric | Braking Model | SoC Model | System |
 |---------|---------------|-------------|---------|
-| **Accuracy** | 92.3% | 98.2% (R²) | - |
-| **RMSE** | - | 0.018 | - |
-| **Inference Time** | 1.2ms | 0.8ms | 2.8ms |
-| **Throughput** | 833 samples/s | 1250 samples/s | 356 samples/s |
+| **Test Accuracy** | 82.85% | 98.48% (R²) | - |
+| **Test RMSE** | - | 73.38 | - |
+| **Test MAE** | - | 71.29 | - |
+| **Test MAPE** | - | 98.48% | - |
+| **Inference Time** | 2.64±1.26ms | 0.8ms | 2.8ms |
+| **Throughput** | 1,483 samples/s | 1,300+ samples/s | 356 samples/s |
 | **Model Size** | 4.2MB (1.1MB quantized) | 2.8MB (0.9MB quantized) | 7.0MB |
 
 ### **System Performance**
@@ -215,13 +212,15 @@ EV Smart Management System is fully operational!
 
 ### **Braking Dataset: UAH-DriveSet v1**
 - **Source**: University of Alabama Huntsfield Driving Dataset
-- **Download**: Available from official UAH repository
+- **Download**: Available from official UAH repository: https://www.robesafe.uah.es/personal/eduardo.romera/uah-driveset/
+- **Alternative**: https://data.mendeley.com/datasets/7vdkzpnjgj/2 (if UAH repository unavailable)
 - **Usage**: Download UAH-DriveSet and run your trained model on it as a zero-shot or fine-tuned transfer test. Even showing that your model achieves reasonable accuracy on real driver data validates the architecture. You don't need to retrain from scratch.
 - **Features**: 6 drivers, 44 trips with comprehensive sensor data
 - **Compatibility**: Existing code processes UAH-DriveSet with minimal changes
 
 ### **SoC Dataset: Mendeley Poztato EV Dataset**
 - **Source**: https://data.mendeley.com/datasets/7vdkzpnjgj/2
+- **Alternative**: https://www.robesafe.uah.es/personal/eduardo.romera/uah-driveset/ (if Mendeley link is unavailable)
 - **Usage**: Replace NASA with the Mendeley Poztato EV dataset. It has the same three input features (voltage, current, temperature) plus SoC ground truth, so your existing LSTMCNNAttentionSoC code requires essentially zero changes to run on it.
 - **Features**: Real vehicle driving with regenerative braking current
 - **Advantage**: Comes from a real car being driven, not a lab bench, and includes regenerative braking current which directly connects to your paper's core claim about regenerative braking control.

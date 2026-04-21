@@ -2,11 +2,11 @@
     "current_driver_profile": {
         "driver_id": "test_driver_001",
         "driving_style": "normal",
-        "avg_braking_intensity": 0.5017642378807068,
-        "braking_frequency": 0.48,
-        "speed_variance": 1.0,
+        "avg_braking_intensity": 0.5012050867080688,
+        "braking_frequency": 0.38666666666666666,
+        "speed_variance": 0.9999997019767761,
         "acceleration_patterns": [
-            -3.1789145538141383e-08
+            -1.0331471678171056e-08
         ],
         "preferred_regen_level": 0.6,
         "battery_usage_efficiency": 0.7
@@ -231,6 +231,105 @@
             "brake_smoothness": 0.04379570484161377,
             "intensity": 0.5017642378807068,
             "class": 0
+        },
+        {
+            "avg_speed": 6.556511067401516e-08,
+            "speed_variance": 1.0,
+            "avg_acceleration": 9.53674295089968e-09,
+            "accel_variance": 1.0,
+            "braking_frequency": 0.5066666666666667,
+            "max_brake_force": 2.9673104286193848,
+            "brake_smoothness": -0.028894901275634766,
+            "intensity": 0.5012927651405334,
+            "class": 0
+        },
+        {
+            "avg_speed": -6.159146526130144e-09,
+            "speed_variance": 1.0,
+            "avg_acceleration": -3.1789144649962964e-09,
+            "accel_variance": 1.0,
+            "braking_frequency": 0.44,
+            "max_brake_force": 2.269246816635132,
+            "brake_smoothness": 0.09362298250198364,
+            "intensity": 0.5011854767799377,
+            "class": 0
+        },
+        {
+            "avg_speed": 5.324681495721961e-08,
+            "speed_variance": 1.000000238418579,
+            "avg_acceleration": -7.1525572131747595e-09,
+            "accel_variance": 1.000000238418579,
+            "braking_frequency": 0.44,
+            "max_brake_force": 2.5281472206115723,
+            "brake_smoothness": 0.05402606725692749,
+            "intensity": 0.5014398694038391,
+            "class": 0
+        },
+        {
+            "avg_speed": 1.0331471678171056e-08,
+            "speed_variance": 1.0000001192092896,
+            "avg_acceleration": 6.95387525340152e-09,
+            "accel_variance": 1.0000001192092896,
+            "braking_frequency": 0.48,
+            "max_brake_force": 1.9529720544815063,
+            "brake_smoothness": 0.3127792477607727,
+            "intensity": 0.5008061528205872,
+            "class": 0
+        },
+        {
+            "avg_speed": -2.304712864997782e-08,
+            "speed_variance": 1.000000238418579,
+            "avg_acceleration": 1.1920929132713809e-08,
+            "accel_variance": 0.9999998807907104,
+            "braking_frequency": 0.49333333333333335,
+            "max_brake_force": 2.135045289993286,
+            "brake_smoothness": 0.2659822702407837,
+            "intensity": 0.501257598400116,
+            "class": 0
+        },
+        {
+            "avg_speed": 2.0662943356342112e-08,
+            "speed_variance": 1.0000001192092896,
+            "avg_acceleration": 1.5894572769070692e-08,
+            "accel_variance": 1.0000001192092896,
+            "braking_frequency": 0.48,
+            "max_brake_force": 2.4999098777770996,
+            "brake_smoothness": 0.20500224828720093,
+            "intensity": 0.5013232827186584,
+            "class": 0
+        },
+        {
+            "avg_speed": -3.3775965135873776e-08,
+            "speed_variance": 0.9999997019767761,
+            "avg_acceleration": 1.0331471678171056e-08,
+            "accel_variance": 1.0000001192092896,
+            "braking_frequency": 0.4266666666666667,
+            "max_brake_force": 3.3016557693481445,
+            "brake_smoothness": -0.022478580474853516,
+            "intensity": 0.5014771819114685,
+            "class": 0
+        },
+        {
+            "avg_speed": 1.907348590179936e-08,
+            "speed_variance": 1.0000001192092896,
+            "avg_acceleration": 1.1920929132713809e-08,
+            "accel_variance": 1.0000003576278687,
+            "braking_frequency": 0.37333333333333335,
+            "max_brake_force": 2.6274728775024414,
+            "brake_smoothness": -0.0030219554901123047,
+            "intensity": 0.5015463829040527,
+            "class": 0
+        },
+        {
+            "avg_speed": -2.2252400810884865e-08,
+            "speed_variance": 0.9999997019767761,
+            "avg_acceleration": -1.0331471678171056e-08,
+            "accel_variance": 1.0000001192092896,
+            "braking_frequency": 0.38666666666666666,
+            "max_brake_force": 2.9693291187286377,
+            "brake_smoothness": -0.18788063526153564,
+            "intensity": 0.5012050867080688,
+            "class": 0
         }
     ],
     "energy_recovery_history": [
@@ -253,9 +352,18 @@
         0.32580229043960574,
         0.3258057773113251,
         0.32595172226428987,
-        0.3261467546224594
+        0.3261467546224594,
+        0.32584029734134673,
+        0.3257705599069595,
+        0.3259359151124954,
+        0.32552399933338166,
+        0.32581743896007537,
+        0.325860133767128,
+        0.32596016824245455,
+        0.32600514888763427,
+        0.3257833063602448
     ],
     "soc_prediction_confidence": 0.02,
     "adaptation_level": 1.0,
-    "last_update_time": 1776791675.350013
+    "last_update_time": 1776793678.153868
 }

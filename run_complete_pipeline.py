@@ -112,6 +112,8 @@ def calculate_and_display_model_metrics():
     """calculate and display model quality metrics by evaluating existing models"""
     print("calculating model quality metrics...")
     
+    metrics = {}
+    
     try:
         import torch
         import torch.nn as nn
@@ -147,15 +149,15 @@ def calculate_and_display_model_metrics():
             model.to(device)
             model.eval()
             
-            # evaluate on validation set
-            X_val_tensor = torch.tensor(X_val, dtype=torch.float32).to(device)
-            y_class_val_tensor = torch.tensor(y_class_val, dtype=torch.long).to(device)
+
+            X_test_tensor = torch.tensor(X_test, dtype=torch.float32).to(device)
+            y_class_test_tensor = torch.tensor(y_class_test, dtype=torch.long).to(device)
             
             with torch.no_grad():
-                cls_outputs, _ = model(X_val_tensor)
+                cls_outputs, _ = model(X_test_tensor)
                 _, predicted = torch.max(cls_outputs.data, 1)
                 
-                y_true = y_class_val_tensor.cpu().numpy()
+                y_true = y_class_test_tensor.cpu().numpy()
                 y_pred = predicted.cpu().numpy()
                 
                 # calculate metrics
@@ -164,10 +166,10 @@ def calculate_and_display_model_metrics():
                 f1_weighted = f1_score(y_true, y_pred, average='weighted')
                 
                 metrics['braking'] = {
-                    'val_accuracy': float(accuracy),
-                    'val_f1_macro': float(f1_macro),
-                    'val_f1_weighted': float(f1_weighted),
-                    'validation_samples': len(y_true)
+                    'test_accuracy': float(accuracy),
+                    'test_f1_macro': float(f1_macro),
+                    'test_f1_weighted': float(f1_weighted),
+                    'test_samples': len(y_true)
                 }
                 
         except Exception as e:
@@ -176,14 +178,20 @@ def calculate_and_display_model_metrics():
         # evaluate soc model
         print("evaluating soc model...")
         try:
-            X_train, y_train, X_val, y_val, X_test, y_test = dataset_loader.load_soc_dataset()
+
+            X_test = np.load("modules/soc/data/X_test_real.npy")
+            y_test = np.load("modules/soc/data/y_test_real.npy")
             
-            # use smaller subset for evaluation to avoid memory issues
-            max_samples = min(1000, len(X_val))  # Limit to 1000 samples max
-            X_val_subset = X_val[:max_samples]
-            y_val_subset = y_val[:max_samples]
+            print(f"  original X_test shape: {X_test.shape}")
+            print(f"  original y_test shape: {y_test.shape}")
             
-            print(f"  using {len(X_val_subset)} samples for evaluation (subset of {len(X_val)})")
+            # smaller subset for evaluation to avoid memory issues
+            max_samples = min(1000, len(X_test))  
+            X_test_subset = X_test[:max_samples]
+            y_test_subset = y_test[:max_samples]
+            
+            print(f"  using {len(X_test_subset)} samples for evaluation (subset of {len(X_test)})")
+            print(f"  test data shape: {X_test_subset.shape}")
             
             model = LSTMCNNAttentionSoC(
                 input_dim=3,
@@ -198,13 +206,12 @@ def calculate_and_display_model_metrics():
             model.to(device)
             model.eval()
             
-            # evaluate in batches to avoid memory issues
             batch_size = 32
             all_predictions = []
             
             with torch.no_grad():
-                for i in range(0, len(X_val_subset), batch_size):
-                    batch_x = torch.tensor(X_val_subset[i:i+batch_size], dtype=torch.float32).to(device)
+                for i in range(0, len(X_test_subset), batch_size):
+                    batch_x = torch.tensor(X_test_subset[i:i+batch_size], dtype=torch.float32).to(device)
                     batch_outputs = model(batch_x)
                     all_predictions.extend(batch_outputs.cpu().numpy())
                     
@@ -216,16 +223,16 @@ def calculate_and_display_model_metrics():
             y_pred = np.array(all_predictions)
             
             # calculate regression metrics
-            mse = mean_squared_error(y_val_subset, y_pred)
+            mse = mean_squared_error(y_test_subset, y_pred)
             rmse = np.sqrt(mse)
-            mae = mean_absolute_error(y_val_subset, y_pred)
-            mape = np.mean(np.abs((y_val_subset - y_pred) / (y_val_subset + 1e-8))) * 100
+            mae = mean_absolute_error(y_test_subset, y_pred)
+            mape = np.mean(np.abs((y_test_subset - y_pred) / (y_test_subset + 1e-8))) * 100
             
             metrics['soc'] = {
-                'val_rmse': float(rmse),
-                'val_mae': float(mae),
-                'val_mape': float(mape),
-                'validation_samples': len(y_val_subset)
+                'test_rmse': float(rmse),
+                'test_mae': float(mae),
+                'test_mape': float(mape),
+                'test_samples': len(y_test_subset)
             }
             
             print(f"  soc evaluation completed successfully")
@@ -240,20 +247,20 @@ def calculate_and_display_model_metrics():
         if 'braking' in metrics:
             print("braking model performance:")
             b_metrics = metrics['braking']
-            print(f"  validation accuracy: {b_metrics['val_accuracy']:.4f}")
-            print(f"  validation f1-score (macro): {b_metrics['val_f1_macro']:.4f}")
-            print(f"  validation f1-score (weighted): {b_metrics['val_f1_weighted']:.4f}")
-            print(f"  validation samples: {b_metrics['validation_samples']}")
+            print(f"  test accuracy: {b_metrics['test_accuracy']:.4f}")
+            print(f"  test f1-score (macro): {b_metrics['test_f1_macro']:.4f}")
+            print(f"  test f1-score (weighted): {b_metrics['test_f1_weighted']:.4f}")
+            print(f"  test samples: {b_metrics['test_samples']}")
         else:
             print("\nbraking model: evaluation failed")
         
         if 'soc' in metrics:
             print("\nsoc model performance:")
             s_metrics = metrics['soc']
-            print(f"  validation rmse: {s_metrics['val_rmse']:.4f}")
-            print(f"  validation mae: {s_metrics['val_mae']:.4f}")
-            print(f"  validation mape: {s_metrics['val_mape']:.2f}%")
-            print(f"  validation samples: {s_metrics['validation_samples']}")
+            print(f"  test rmse: {s_metrics['test_rmse']:.4f}")
+            print(f"  test mae: {s_metrics['test_mae']:.4f}")
+            print(f"  test mape: {s_metrics['test_mape']:.2f}%")
+            print(f"  test samples: {s_metrics['test_samples']}")
         else:
             print("\nsoc model: evaluation failed")
         
@@ -408,7 +415,8 @@ def main():
         return
     
     # calculate and display model quality metrics
-    calculate_and_display_model_metrics()
+    model_metrics = calculate_and_display_model_metrics()
+    results['model_metrics'] = model_metrics
     
     print("testing enhanced pipeline...")
     results['enhanced_pipeline'] = test_enhanced_pipeline()
@@ -427,8 +435,57 @@ def main():
     
     if overall:
         print("ev smart management system is fully operational!")
+        # save final report with metrics
+        save_final_report_with_metrics(results)
     else:
         print("some tests failed - check logs above")
+
+def save_final_report_with_metrics(results):
+    """save final report with model quality metrics"""
+    import json
+    from datetime import datetime
+    
+    try:
+        # ensure training_checkpoints directory exists
+        os.makedirs("training_checkpoints", exist_ok=True)
+        
+        # create comprehensive report
+        report = {
+            "timestamp": datetime.now().isoformat(),
+            "status": "operational",
+            "pipeline_results": {
+                "data_generation": results.get('braking_data', False),
+                "model_training": results.get('model_training', False),
+                "enhanced_pipeline": results.get('enhanced_pipeline', False),
+                "performance": results.get('performance', False)
+            },
+            "model_quality_metrics": results.get('model_metrics', {}),
+            "summary": {
+                "overall_status": "all tests passed" if all([
+                    results.get('braking_data', False),
+                    results.get('model_training', False),
+                    results.get('enhanced_pipeline', False),
+                    results.get('performance', False)
+                ]) else "some tests failed",
+                "components_successful": sum([
+                    results.get('braking_data', False),
+                    results.get('model_training', False),
+                    results.get('enhanced_pipeline', False),
+                    results.get('performance', False)
+                ]),
+                "total_components": 4
+            }
+        }
+        
+        # save report
+        report_path = "training_checkpoints/final_report.json"
+        with open(report_path, "w") as f:
+            json.dump(report, f, indent=2)
+        
+        print(f"final report saved: {report_path}")
+        
+    except Exception as e:
+        print(f"error saving final report: {e}")
 
 if __name__ == "__main__":
     success = main()
